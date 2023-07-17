@@ -1,7 +1,10 @@
 import Layout from "../components/wrap"
 import { AnimatedText } from "../hooks/useTextSlide"
-import { BsPiggyBank, BsShieldShaded, BsAlarm } from 'react-icons/bs';
+// import { BsCurrencyDollar, BsShieldShaded, BsAlarm } from 'react-icons/bs';
 import LinkTabs from "../components/LinkTabs";
+import { WalletConnectButton } from "../components/ConnectWallet";
+import React from "react";
+import { Helmet } from "react-helmet";
 // import Transition from "../hooks/useTransition";
 
 const tabs = [
@@ -78,122 +81,139 @@ const tabs = [
 const Root = () => {
 
     return (
-        <Layout navbar footer>
-            <div>
-                <div className='grid gap-16'>
+        <React.Fragment>
+            <Helmet>
+                <title>Coffer City | Saving Made Simple, Smart, and Secure</title>
+            </Helmet>
+            <Layout navbar footer>
+                <div>
+                    <div className='grid gap-16'>
 
-                    {/* <Transition direction="top" tension={30} friction={28}>
+                        {/* <Transition direction="top" tension={30} friction={28}>
                         <h3 className="font-monoton text-5xl md:text-[120px] text-center">Coffer</h3>
                         <h1 className="font-monoton text-9xl md:text-[250px] text-center">City</h1>
                     </Transition> */}
-                    
-                    <div className="bg-[#02075d] text-slate-50 px-10 md:px-32 py-[30%] md:py-[10%] grid h-[120%] md:h-[130%]">
-                        <div>Welcome to</div>
-                        <div className="text-5xl md:text-6xl font-monoton w-full md:w-2/3 leading-snug">
-                            Coffer City, the digital Piggy Bank 
-                            <span className="flex gap-x-3 flex-wrap">
-                                that helps you
-                                <AnimatedText
-                                    // className='underline underline-offset-8'
-                                    items={["Save", "Invest", "Grow"]}
-                                    interval={3000}
-                                    direction="top"
-                                />
-                            </span>
-                            on your terms!
+
+                        <div className="bg-[#02075d] text-slate-50 px-10 md:px-32 py-[50%] md:py-[13%] h-[120%] md:h-[130%]">
+                            <div className='py-8'>Welcome to</div>
+                            <div className="text-5xl md:text-6xl font-monoton w-full md:w-2/3">
+                                Coffer City, the
+                                <span className="md:flex gap-3 flex-wrap ml-4 md:m-0">
+                                    digital
+                                    <AnimatedText
+                                        className='py-1'
+                                        items={["Bank", "Chest", "Vault", "Reserve", "Treasury", "Safe"]}
+                                        interval={8000}
+                                        direction="top"
+                                    />
+                                </span>
+                                <span className="flex gap-3 flex-wrap">
+                                    that helps you
+                                    <AnimatedText
+                                        // className='underline underline-offset-8'
+                                        items={["Invest", "Save", "Evolve", "Grow"]}
+                                        interval={2000}
+                                        direction="top"
+                                    />
+                                </span>
+                                on your terms!
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="px-10 md:px-32 py-5 grid gap-8 grid-cols-1 md:grid-cols-3">
+                        <div className="px-10 md:px-32 py-5 grid gap-8 grid-cols-1 md:grid-cols-3">
 
-                        <div className="rounded-xl bg-slate-300/30 backdrop-blur-sm p-5 grid gap-5">
-                            <div className="h-52 bg-white flex rounded-xl">
-                                <div className="m-auto text-center">
-                                    <BsPiggyBank size={60} />
+                            <div className="rounded-xl bg-slate-300/30 backdrop-blur-sm p-5 grid gap-5">
+                                <div className="h-52 bg-white flex rounded-xl">
+                                    <div className="m-auto text-center">
+                                        {/* <BsCurrencyDollar size={60} /> */}
+                                        <span className="text-[60px]">💰</span>
+                                    </div>
+                                </div>
+                                <div className=''>
+                                    <div className="font-monoton text-lg">Weekly Deposits</div>
+                                    <div className="text-sm">Set your weekly goal</div>
                                 </div>
                             </div>
-                            <div className=''>
-                                <div className="font-monoton text-lg">Weekly Deposits</div>
-                                <div className="text-sm">Set your weekly goal</div>
-                            </div>
-                        </div>
 
-                        <div className="rounded-xl bg-slate-300/30 backdrop-blur-sm p-5 grid gap-5">
-                            <div className="h-52 bg-white flex rounded-xl">
-                                <div className="m-auto text-center">
-                                    <BsAlarm size={60} />
+                            <div className="rounded-xl bg-slate-300/30 backdrop-blur-sm p-5 grid gap-5">
+                                <div className="h-52 bg-white flex rounded-xl">
+                                    <div className="m-auto text-center">
+                                        {/* <BsAlarm size={60} /> */}
+                                        <span className="text-[60px]">⏰</span>
+                                    </div>
+                                </div>
+                                <div className=''>
+                                    <div className="font-monoton text-lg">Fixed Duration</div>
+                                    <div className="text-sm">Choose your deposit period</div>
                                 </div>
                             </div>
-                            <div className=''>
-                                <div className="font-monoton text-lg">Fixed Duration</div>
-                                <div className="text-sm">Choose your deposit period</div>
-                            </div>
-                        </div>
 
-                        <div className="rounded-xl bg-slate-300/30 backdrop-blur-sm p-5 grid gap-5">
-                            <div className="h-52 bg-white flex rounded-xl">
-                                <div className="m-auto text-center">
-                                    <BsShieldShaded size={60} />
+                            <div className="rounded-xl bg-slate-300/30 backdrop-blur-sm p-5 grid gap-5">
+                                <div className="h-52 bg-white flex rounded-xl">
+                                    <div className="m-auto text-center">
+                                        {/* <BsShieldShaded size={60} /> */}
+                                        <span className="text-[60px]">🛡️</span>
+                                    </div>
+                                </div>
+                                <div className=''>
+                                    <div className="font-monoton text-lg">Unique ID</div>
+                                    <div className="text-sm">Easily track your savings</div>
                                 </div>
                             </div>
-                            <div className=''>
-                                <div className="font-monoton text-lg">Unique ID</div>
-                                <div className="text-sm">Easily track your savings</div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div className="text-center m-auto px-10 md:px-32 max-w-3xl justify-between">
-                        <div className="grid gap-5">
-
-                            <div className="font-monoton text-5xl">Get Started</div>
-
-                            <div className="text-sm">Kickstart your savings journey with Coffer City! Don’t miss out on a secure, straightforward, and rewarding experience.</div>
-
-                            <div className="text-sm text-white">
-                                <button className="p-3 rounded-lg bg-slate-300 text-slate-900">Connect Wallet</button>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div className="grid gap-12 px-10 md:px-32">
-
-                        <div className="font-monoton text-5xl">Key Features</div>
-
-                        <LinkTabs contentClassName="" tabs={tabs}/>
-
-                    </div>
-
-                    <div className="grid gap-12 px-10 md:px-32">
-
-                        <div className="font-monoton text-5xl">FAQs</div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-                            <div className="text-sm grid gap-5">
-                                <div className="text-lg text-slate-700 font-semibold">How does Coffer City work?</div>
-                                <p>Coffer City allows you to deposit a specified weekly amount for a fixed duration, encouraging consistent saving habits. You can top-up your deposits once a week before the duration ends.</p>
-                            </div>
-
-                            <div className="text-sm grid gap-3">
-                                <div className="text-lg text-slate-700 font-semibold">What if I miss a deposit?</div>
-                                <p>Fret not! If you miss a deposit, a debt accumulates corresponding to the amount you should have deposited. Coffer City helps keep you accountable!</p>
-                            </div>
-
-                            <div className="text-sm grid gap-3">
-                                <div className="text-lg text-slate-700 font-semibold">Can I track my savings?</div>
-                                <p>Absolutely! Each deposit comes with a unique ID that you can use to track your savings and monitor your progress anytime, anywhere.</p>
-                            </div>
 
                         </div>
 
-                    </div>
+                        <div className="text-center m-auto px-10 md:px-32 max-w-3xl justify-between">
+                            <div className="grid gap-5">
 
+                                <div className="font-monoton text-5xl">Get Started</div>
+
+                                <div className="text-sm">Kickstart your savings journey with Coffer City! Don’t miss out on a secure, straightforward, and rewarding experience.</div>
+
+                                <div className="text-sm mx-auto">
+                                    <WalletConnectButton />
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div className="grid gap-12 px-10 md:px-32">
+
+                            <div className="font-monoton text-5xl">Key Features</div>
+
+                            <LinkTabs contentClassName="" tabs={tabs} />
+
+                        </div>
+
+                        <div className="grid gap-12 px-10 md:px-32 bg-[#02075d] text-slate-50 py-10">
+
+                            <div className="font-monoton text-5xl">FAQs</div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                                <div className="text-sm grid gap-5">
+                                    <div className="text-lg text-slate-400 font-semibold">How does Coffer City work?</div>
+                                    <p>Coffer City allows you to deposit a specified weekly amount for a fixed duration, encouraging consistent saving habits. You can top-up your deposits once a week before the duration ends.</p>
+                                </div>
+
+                                <div className="text-sm grid gap-3">
+                                    <div className="text-lg text-slate-400 font-semibold">What if I miss a deposit?</div>
+                                    <p>Fret not! If you miss a deposit, a debt accumulates corresponding to the amount you should have deposited. Coffer City helps keep you accountable!</p>
+                                </div>
+
+                                <div className="text-sm grid gap-3">
+                                    <div className="text-lg text-slate-400 font-semibold">Can I track my savings?</div>
+                                    <p>Absolutely! Each deposit comes with a unique ID that you can use to track your savings and monitor your progress anytime, anywhere.</p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
                 </div>
-            </div>
-        </Layout>
+            </Layout>
+        </React.Fragment>
     )
 }
 
