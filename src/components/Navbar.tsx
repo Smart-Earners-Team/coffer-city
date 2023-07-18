@@ -49,9 +49,9 @@ const Navbar = () => {
 
             <div className="" ref={menuRef}>
                 {/* Hamburger and Mobile menu */}
-                <div className="absolute top-0 right-0 mt-6 mr-8 z-10 md:hidden">
+                <div className="absolute top-0 right-0 mt-6 mr-8 md:hidden">
                     <button
-                        className="p-2 rounded-md hover:bg-slate-100/10 transition-colors"
+                        className="p-3 rounded-md hover:bg-slate-100/10 transition-colors"
                         onClick={toggleMobileMenu}
                     >
                         {
@@ -61,7 +61,7 @@ const Navbar = () => {
                 </div>
                 <animated.div
                     className={`${isMobileMenuOpen ? "block" : "hidden"
-                        } md:hidden transition-transform transform duration-300 ease-in-out absolute origin-top w-full h-full`}
+                        } md:hidden transition-transform transform duration-300 ease-in-out absolute origin-top w-full h-full z-50`}
                     style={mobileMenuAnimation}
                 >
                     {/* Mobile menu content */}
