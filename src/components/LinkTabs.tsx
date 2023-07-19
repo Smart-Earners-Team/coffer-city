@@ -41,7 +41,7 @@ const LinkTabs: React.FC<LinkTabsProps> = ({ tabs, className, contentClassName, 
                 .map((tab, index) => (
                     <div key={tab.id} className={`text-sm grid gap-5 ${index % 2 === 0 ? 'grid-cols-1 md:grid-cols-3' : 'text-right'} ${contentClassName}`}>
                         <div className={`md:col-span-2 my-auto`}>
-                            <p>{tab.content}</p>
+                            <div>{tab.content}</div>
                         </div>
                         <div className='md:col-span-1 -mt-12 md:-mt-32'>
                             {tab.image}

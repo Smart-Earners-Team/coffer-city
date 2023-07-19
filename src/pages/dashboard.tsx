@@ -1,23 +1,29 @@
 import React, { useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
-import { BsShieldFillCheck } from 'react-icons/bs'
+import { BsShieldFillCheck, BsShieldFillExclamation } from 'react-icons/bs'
 import { FaChartLine, FaChartPie, FaEye, FaEyeSlash, FaGift, FaPlusCircle } from "react-icons/fa"
 import { Link } from "react-router-dom"
 
 const Dashboard = () => {
     const [ isVisible, setIsVisible ] = useState<boolean>(false);
+    const [ 
+        isActive,
+        // setIsActive
+    ] = useState<boolean>(true);
     
     const handleValueVisibility = () => {
         setIsVisible(!isVisible);
+        // setIsActive(!isActive);
     }
+    
     return (
         <React.Fragment>
             <Helmet>
                 <title>Dashboard | Coffer City</title>
             </Helmet>
             <Layout navbar footer>
-                <div className="grid gap-10 px-10 md:px-32 pt-[30%] md:pt-[13%] h-[120%] md:h-[130%]">
+                <div className="grid gap-10 px-10 md:px-32 pt-[38%] md:pt-[13%] h-[120%] md:h-[130%]">
                     <div>
                         <div className="md:flex w-full gap-5 relative justify-center">
                             <div className="p-5 relative w-full md:w-[30%] rounded-xl bg-[#02075d] text-slate-50">
@@ -38,34 +44,40 @@ const Dashboard = () => {
                                     <FaPlusCircle className='inline m-1 -ml-1'/>
                                     Top-Up
                                 </button>
-                                <button className="p-2 rounded-lg bg-gray-300 text-slate-800 hover:bg-gray-300/90 duration-300">$25,000.21</button>
+                                <button className="p-2 rounded-lg bg-gray-300 text-slate-800 hover:bg-gray-300/90 duration-300">New Deposit</button>
                             </div>
                         </div>
                     </div>
                     <div>
                         <div>Quick Actions</div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                            <Link to='' className="rounded-lg bg-[#02075d]/10 p-5 grid gap-5 items-center">
+                            <Link to='/referral' className="rounded-lg bg-[#02075d]/10 p-5 grid gap-5 items-center">
                                 <span className="rounded-full w-fit h-fit bg-slate-50 text-[#02075d]">
                                     <FaGift className='m-3 text-xl' />
                                 </span>
                                 <div className="flex flex-col justify-center">
                                     <div className="font-bold">Refer a friend</div>
-                                    <div className="text-xs">Invite friends and earn $50</div>
+                                    <div className="text-xs">Invite friends and earn rewards</div>
                                 </div>
                             </Link>
 
-                            <Link to='https://google.com' className="rounded-lg bg-[#02075d]/10 p-5 grid gap-5 items-center">
-                                <span className="rounded-full w-fit h-fit bg-slate-50 text-[#02075d]">
-                                    <BsShieldFillCheck className='m-3 text-xl' />
+                            <Link to='' className={`rounded-lg ${isActive ? 'bg-[#02075d]/10' : 'bg-[#eb435c]/10'} p-5 grid gap-5 items-center`}>
+                                <span className={`rounded-full w-fit h-fit bg-slate-50 ${isActive ? 'text-[#02075d]' : 'text-[#eb435c]'}`}>
+                                    {
+                                        isActive ? <BsShieldFillCheck className='m-3 text-xl' /> : <BsShieldFillExclamation className='m-3 text-xl' />
+                                    }
                                 </span>
                                 <div className="flex flex-col justify-center">
-                                    <div className="font-bold">Deposit Status</div>
-                                    <div className="text-xs">Keeps track of your deposit status and activity</div>
+                                    <div className="font-bold">Account Status</div>
+                                    <div className="text-xs">
+                                        {
+                                            isActive ? 'Active' : 'Inactive'
+                                        }
+                                    </div>
                                 </div>
                             </Link>
 
-                            <Link to='https://google.com' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
+                            <Link to='' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
                                 <span className="rounded-full w-fit h-fit bg-slate-50 text-[#eb435c]">
                                     <FaChartLine className='m-3 text-xl' />
                                 </span>
@@ -75,7 +87,7 @@ const Dashboard = () => {
                                 </div>
                             </Link>
 
-                            <Link to='https://google.com' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
+                            <Link to='' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
                                 <span className="rounded-full w-fit h-fit bg-slate-50 text-[#eb435c]">
                                     <FaChartPie className='m-3 text-xl' />
                                 </span>
