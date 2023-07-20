@@ -1,12 +1,23 @@
 import React, { useState } from "react"
 import { Helmet } from "react-helmet"
-import Layout from "../components/wrap"
+import Layout, { useWagmiDetails } from "../components/wrap"
 import { Link } from "react-router-dom"
 import { FaCopy, FaEnvelope, FaLinkedin, FaTwitter } from "react-icons/fa"
 import piggyBank from './../assets/svgs/piggybank.svg'
 import cofferchest from './../assets/svgs/coffer-chest.svg'
 
+export function copyToClipboard(value: string) {
+    try {
+        navigator.clipboard.writeText(value);
+        // console.log('Copied to clipboard');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+    }
+}
+
 const Referral = () => {
+
+    const { address } = useWagmiDetails();
 
     const [activeTab, setActiveTab] = useState("activeRewards");
 
@@ -15,6 +26,8 @@ const Referral = () => {
         { name: "My Rewards", id: "myRewards" },
         // Add more tabs here as needed
     ];
+
+    const ownerReferral = `coffer.city/rewards/${address}`
 
     return (
         <React.Fragment>
@@ -30,11 +43,11 @@ const Referral = () => {
                             Invite a new user to sign up using your link and earn unique rewards - per referral.
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1 px-5">
-                                <span className="opacity-90 text-xs md:text-sm select-none">coffer.city/username</span>
-                                <button onClick={()=>alert("Copied")} className="float-right flex w-fit gap-1">
+                            <div className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1 px-5 flex gap-3 justify-between">
+                                <div className="opacity-90 text-xs md:text-sm select-none overflow-hidden overflow-ellipsis whitespace-nowrap my-auto">{ownerReferral}</div>
+                                <button onClick={() => copyToClipboard(`https://${ownerReferral}`)} className="float-right flex w-fit gap-1">
                                     <FaCopy className='text-lg'/>
-                                    <small className="">Copy Link</small>
+                                    <small className="whitespace-nowrap">Copy Link</small>
                                 </button>
                             </div>
                             <div className="grid grid-cols-3 md:grid-cols-4 gap-2">

@@ -40,18 +40,18 @@ const Dashboard = () => {
                                 </button>
                             </div>
                             <div className="grid gap-3 text-xs py-3 md:py-0">
-                                <button className='font-bold p-2 rounded-lg bg-[#02075d] text-slate-50 hover:bg-[#02075d]/90 duration-300'>
-                                    <FaPlusCircle className='inline m-1 -ml-1'/>
+                                <button className='font-bold p-2 rounded-lg bg-[#02075d] text-slate-50 h-fit m-auto hover:bg-[#02075d]/90 duration-300'>
+                                    <FaPlusCircle className='inline m-1 -ml-0'/>
                                     Top-Up
                                 </button>
-                                <button className="p-2 rounded-lg bg-gray-300 text-slate-800 hover:bg-gray-300/90 duration-300">New Deposit</button>
+                                {/* <button className="p-2 rounded-lg bg-gray-300 text-slate-800 hover:bg-gray-300/90 duration-300">New Deposit</button> */}
                             </div>
                         </div>
                     </div>
                     <div>
                         <div>Quick Actions</div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                            <Link to='/referral' className="rounded-lg bg-[#02075d]/10 p-5 grid gap-5 items-center">
+                            <Link to='/rewards' className="rounded-lg bg-[#02075d]/10 p-5 grid gap-5 items-center">
                                 <span className="rounded-full w-fit h-fit bg-slate-50 text-[#02075d]">
                                     <FaGift className='m-3 text-xl' />
                                 </span>
@@ -61,8 +61,8 @@ const Dashboard = () => {
                                 </div>
                             </Link>
 
-                            <Link to='' className={`rounded-lg ${isActive ? 'bg-[#02075d]/10' : 'bg-[#eb435c]/10'} p-5 grid gap-5 items-center`}>
-                                <span className={`rounded-full w-fit h-fit bg-slate-50 ${isActive ? 'text-[#02075d]' : 'text-[#eb435c]'}`}>
+                            <Link to='' className={`rounded-lg ${isActive ? 'bg-[#27A844]/10' : 'bg-[#9d2b3c]/10'} p-5 grid gap-5 items-center`}>
+                                <span className={`rounded-full w-fit h-fit bg-slate-50 ${isActive ? 'text-[#27A844]' : 'text-[#9d2b3c]'}`}>
                                     {
                                         isActive ? <BsShieldFillCheck className='m-3 text-xl' /> : <BsShieldFillExclamation className='m-3 text-xl' />
                                     }
@@ -77,7 +77,7 @@ const Dashboard = () => {
                                 </div>
                             </Link>
 
-                            <Link to='' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
+                            <Link to='/overview' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
                                 <span className="rounded-full w-fit h-fit bg-slate-50 text-[#eb435c]">
                                     <FaChartLine className='m-3 text-xl' />
                                 </span>
@@ -87,12 +87,12 @@ const Dashboard = () => {
                                 </div>
                             </Link>
 
-                            <Link to='' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
+                            <Link to='/deposit' className="rounded-lg bg-[#eb435c]/10 p-5 grid gap-5 items-center">
                                 <span className="rounded-full w-fit h-fit bg-slate-50 text-[#eb435c]">
                                     <FaChartPie className='m-3 text-xl' />
                                 </span>
                                 <div className="flex flex-col justify-center">
-                                    <div className="font-bold">Invest</div>
+                                    <div className="font-bold">New Deposit</div>
                                     <div className="text-xs">Invest your tokens and get good returns</div>
                                 </div>
                             </Link>

@@ -94,7 +94,7 @@ const Root = () => {
                         <h1 className="font-monoton text-9xl md:text-[250px] text-center">City</h1>
                     </Transition> */}
 
-                        <div className="bg-[#02075d] text-slate-50 px-10 md:px-32 py-[50%] md:py-[13%] h-[120%] md:h-[130%]">
+                        <div className="bg-[#02075d] text-slate-50 px-8 w-screen md:px-32 py-[50%] md:py-[13%] h-[120%] md:h-[130%]">
                             <div className='py-8'>Welcome to</div>
                             <div className="text-5xl md:text-6xl font-monoton w-full md:w-2/3">
                                 Coffer City, the
