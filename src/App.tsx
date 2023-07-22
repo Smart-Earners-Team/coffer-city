@@ -6,6 +6,7 @@ import Page404 from "./pages/404";
 import Referral from "./pages/referral";
 import OverView from "./pages/savings";
 import Deposits from "./pages/deposit";
+import DepositInfo from "./pages/depositInfo";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/rewards" element={<Referral />} />
         <Route path="/overview" element={<OverView />} />
         <Route path="/deposit" element={<Deposits />} />
+        <Route path="/overview/:depositId" element={<DepositInfo />} />
         <Route path="*" element={<Page404 />} />
       </Routes>
     </BrowserRouter>

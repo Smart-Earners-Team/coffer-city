@@ -1,6 +1,7 @@
 import React from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
+import { Link } from "react-router-dom";
 
 // Define table headings
 const headings = ['ID', 'Start Date', 'Maturity', 'Unpaid', 'Progress'];
@@ -12,8 +13,7 @@ const rows = [
         startDate: '01-07-23',
         maturity: '01-07-24',
         unpaid: '',
-        progress: '',
-        action: 'Action'
+        progress: ''
     },
     // Add as many objects as you have rows
 ];
@@ -48,7 +48,9 @@ const OverView = () => {
                                             <td className="border px-4 py-2 text-center">{row.maturity}</td>
                                             <td className="border px-4 py-2 text-center">{row.unpaid}</td>
                                             <td className="border px-4 py-2 text-center">{row.progress}</td>
-                                            <button className="border rounded-lg bg-red-600/90 hover:bg-red-600 duration-300 text-slate-50 p-2 w-full m-auto text-center">{row.action}</button>
+                                            <td className="border bg-red-600/90 hover:bg-red-600 duration-300 text-slate-50 p-2 w-fit my-auto text-center text-xs cursor-pointer">
+                                                <Link to={`/overview/${row.id}`}>Manage</Link>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
