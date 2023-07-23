@@ -53272,6 +53272,14 @@
       "chainId": 56,
       "decimals": 18,
       "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/4823.png"
+    },
+    {
+      "name": "BSC TestNet Coins",
+      "symbol": "tCoins",
+      "address": "0x3807C468D722aAf9e9A82d8b4b1674E66a12E607",
+      "chainId": 97,
+      "decimals": 18,
+      "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/4823.png"
     }
   ]
 }

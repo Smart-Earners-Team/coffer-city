@@ -1,11 +1,26 @@
 import React, { useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
-import cmc from './../utils/cmc.json'
+import cmc from './../utils/extras/cmc.json'
 import EarnersDropdown from "../components/EarnersDropdown"
 import { FaCheck } from "react-icons/fa"
+import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
+import { useContractInitializer } from "../hooks/useEthers"
+import { getAmountForAssets } from "../hooks/getAmountForAssets"
+import { ethers } from "ethers"
 
-const getTokenData = (tokenAddr: string) => {
+const getAddressArray = async () => {
+    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: '0xf1dEDfDcFEe07B6Baa24918DfaD3ef83bCC15Daf', contractABI: CofferCityVaultABI });
+
+    let addrArray: string[];
+
+    addrArray = await contract?.getSupportedTokens();
+    // console.log(addrArray);
+
+    return addrArray;
+}
+
+const getTokenData = async (tokenAddr: string) => {
 
     let tokenData = {
         address: tokenAddr,
@@ -20,17 +35,15 @@ const getTokenData = (tokenAddr: string) => {
     return tokenData;
 }
 
-const addressArray = [
-    '0x97A266490eFA4Fb564aD625AcCabE5641de2f805',
-    '0x9CEFd9588f076c5f805341864adC8a6F077A5b99'
-]
+const populateAssets = async () => {
+    const addressArray: string[] = await getAddressArray();
+    // console.log(addressArray);
 
-const populateAssets = () => {
     let assets = [];
 
     try {
         for (let i=0; i < addressArray.length; i++ ) {
-            const tk = getTokenData(addressArray[i]);
+            const tk = await getTokenData(addressArray[i]);
             // console.log(tk);
             assets.push(tk);
         }
@@ -54,16 +67,37 @@ const Deposits = () => {
         address: '',
         symbol: '',
         logo: '',
-    }])
+    }]);
+
+    const [ tokenAmounts, setTokenAmounts ] = useState<number[]>([]) 
 
     useEffect(()=>{
         const fetchAssets = async () => {
-            const res = populateAssets();
+            const res = await populateAssets();
             setSupportedAssets(res);
         }
 
         fetchAssets();
     }, [])
+
+    const selectAsset = async (val: SP) => {
+        setSelectedAsset(val);
+        try {
+            const res = await getAmountForAssets(val.address);
+            const tRes: bigint[] = res.amountTiersByToken;
+            // console.log(tRes);
+
+            // Convert each item in the array to a parseFloat value
+            const tokenTiers = tRes.map(item => parseFloat(ethers.formatUnits(item, res.assetDecimals)));
+
+            // console.log(tokenTiers);
+
+            setTokenAmounts(tokenTiers);
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     const [selectedAsset, setSelectedAsset] = useState<SP | null>(null);
     // const [selectedDuration, setSelectedDuration] = useState<Date | null>(null);
@@ -92,21 +126,21 @@ const Deposits = () => {
                                     supportedAssets.map((val) => (
                                         <div
                                             key={val.address}
-                                            className={`grid gap-2 rounded-xl bg-slate-300/50 p-5 relative cursor-pointer transform transition-transform duration-300 ease-in-out ${val.address === selectedAsset?.address ? 'bg-[#27A844]/50' : 'bg-slate-300/50'}`}
-                                            onClick={() => (
-                                                setSelectedAsset(val)
+                                            className={`grid gap-2 rounded-xl p-5 relative cursor-pointer transform transition-transform duration-300 ease-in-out ${val.address === selectedAsset?.address ? 'bg-[#27A844]/40' : 'bg-slate-300/30'}`}
+                                            onClick={async () => (
+                                                await selectAsset(val)
                                             )}
                                             style={{ transform: val.address === selectedAsset?.address ? 'scale(0.9)' : 'scale(1)' }}
                                         >
                                             <div className="absolute top-0 left-0">
                                                 {val.address === selectedAsset?.address && (
-                                                    <div className="bg-slate-50 p-3 m-2 rounded-lg">
+                                                    <div className="bg-slate-50 p-2 m-2 rounded-lg">
                                                         <FaCheck className="text-[#27A844]" />
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex flex-col items-center justify-center">
-                                                <img src={val.logo} className="mx-auto" />
+                                            <div className="flex gap-2 font-semibold flex-col items-center justify-center">
+                                                <img src={val.logo} className="mx-auto select-none" />
                                                 <div className="mx-auto">{val.symbol}</div>
                                             </div>
                                         </div>
@@ -119,16 +153,18 @@ const Deposits = () => {
                             selectedAsset && (
                                 <div>
                                     <div className="text-2xl font-dynapuff font-bold">Pick Weekly Amount</div>
-                                    <div className="md:flex grid gap-2">
+                                    <div className="md:flex md:flex-wrap grid gap-2">
                                         {
-                                            selectedAsset && (
-                                                <div key={selectedAsset.address} className="flex gap-2">
-                                                    <button className="my-auto rounded-lg border p-2 hover:bg-blue-900 hover:text-slate-50 duration-300">
-                                                        5 {selectedAsset.symbol}
-                                                    </button>
-                                                    <button className="my-auto rounded-lg border p-2 hover:bg-blue-900 hover:text-slate-50 duration-300">
-                                                        10 {selectedAsset.symbol}
-                                                    </button>
+                                            selectedAsset && tokenAmounts && (
+                                                <div key={selectedAsset.address} className="flex flex-wrap gap-2" >
+                                                    {
+                                                        tokenAmounts.map((tk)=>(
+                                                            <button 
+                                                                key={tk} className="my-auto rounded-lg border p-2 hover:bg-[#27A844]/40 duration-300">
+                                                                {tk} {selectedAsset.symbol}
+                                                            </button>
+                                                        ))
+                                                    }
                                                 </div>
                                             )
                                         }

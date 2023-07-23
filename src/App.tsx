@@ -4,7 +4,7 @@ import Root from "./pages/home";
 import Dashboard from "./pages/dashboard";
 import Page404 from "./pages/404";
 import Referral from "./pages/referral";
-import OverView from "./pages/savings";
+import OverView from "./pages/overview";
 import Deposits from "./pages/deposit";
 import DepositInfo from "./pages/depositInfo";
 
