@@ -12,7 +12,8 @@ import { ethers } from "ethers"
 import { addresses } from "../hooks/addresses"
 import { getDuration } from "../hooks/getDuration"
 import { useEthersSigner } from "../hooks/wagmiSigner"
-import { useNetwork } from "wagmi"
+import { useAccount, useNetwork } from "wagmi"
+import BigNumber from 'bignumber.js'
 
 const getAddressArray = async () => {
     const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
@@ -83,6 +84,9 @@ const Deposits = () => {
 
     const dropdownOptions: string[] = [`weeks`, `months`, `years`];
     const { chain } = useNetwork();
+    const { address } = useAccount();
+    // console.log(address);
+    // console.log(typeof address);
     const cID = Number(chain?.id);
     const signer = useEthersSigner({ chainId: cID });
 
@@ -101,6 +105,7 @@ const Deposits = () => {
     const [durationValid, setDurationValid] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<string>(dropdownOptions[0]);
     const [withdrawalAmount, setWithdrawalAmount] = useState<number>(0);
+    const [isApproved, setIsApproved] = useState<boolean>(false);
 
     // Create a function that will be called when an option is selected in the dropdown
     const handleOptionChange = (option: string) => {
@@ -150,6 +155,7 @@ const Deposits = () => {
 
             // console.log(output)
             setWithdrawalAmount(output);
+            await checkApproval();
         }
 
         calculateOutput();
@@ -250,14 +256,43 @@ const Deposits = () => {
     }
 
     const handleApprove = async () => {
-        selectedAmount && console.log(`${selectedAmount} ${selectedAsset?.symbol}`);
-        console.log(`${selectedDuration} ${selectedOption}`);
+        // selectedAmount && console.log(`${selectedAmount} ${selectedAsset?.symbol}`);
+        // console.log(`${selectedDuration} ${selectedOption}`);
 
-        const contract = new ethers.Contract(String(selectedAsset?.address), ERC20ABI, signer)
+        const contract = new ethers.Contract(String(selectedAsset?.address), ERC20ABI, signer);
 
         const approve = await contract?.approve(addresses.CofferCityVault[97], ethers.MaxUint256);
-        const res = approve.wait();
-        console.log(res);
+        await approve.wait();
+        await checkApproval();
+    }
+
+    const handleConfirm = async () => {
+        // const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+
+        // const newDeposit = await contract.newDeposit();
+        // console.log(newDeposit);
+        console.log('newDeposit');
+    }
+
+    const checkApproval = async () => {
+        const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
+
+        const allowance: number = await contract?.allowance(address, addresses.CofferCityVault[97]);
+
+        const assetDecimals: number = await contract?.decimals();
+        // console.log(assetDecimals);
+
+        // const value = (Number(selectedAmount) * assetDecimals);
+        const value = new BigNumber(Number(selectedAmount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
+
+        // console.log(allowance);
+        console.log(value);
+
+        // const status = (Number(allowance) >= Number(selectedAmount)) ? true : false;
+        const status = (new BigNumber(allowance).gte(value)) ? true : false;
+
+        console.log(status);
+        setIsApproved(status);
     }
 
     return (
@@ -386,18 +421,26 @@ const Deposits = () => {
 
                     </div>
                     <div className='grid gap-3'>
-                        <div className='text-2xl font-bold font-dynapuff'>Summary</div>
-                        <div>
-                            You'll save {amountValid ? selectedAmount : '0'} {selectedAsset?.symbol} weekly and withdraw {withdrawalAmount} {selectedAsset?.symbol} after {durationValid ? selectedDuration : '0'} {selectedOption}
-                        </div>
+                        
                         {
                             selectedAsset && (
-                                <div className='w-full'>
-                                    <button className={`my-auto rounded-lg border p-2 duration-300 
-                                            ${amountValid && durationValid ? 'bg-[#27A844] hover:bg-[#27A844]/90 text-white' : 'opacity-30 cursor-default bg-red-500 text-white'}`}
-                                        onClick={async () => await handleApprove()} >
-                                        Confirm
-                                    </button>
+                                <div className='grid gap-3'>
+                                    <div className='text-2xl font-bold font-dynapuff'>Summary</div>
+                                    <div>
+                                        You'll save {amountValid ? selectedAmount : '0'} {selectedAsset?.symbol} weekly and withdraw {withdrawalAmount} {selectedAsset?.symbol} after {durationValid ? selectedDuration : '0'} {selectedOption}
+                                    </div>
+                                    <div className='w-full'>
+                                        <button className={`my-auto rounded-lg border p-2 duration-300 
+                                            ${amountValid && durationValid ? 'bg-[#27A844] hover:bg-[#27A844]/90 text-white' : 'opacity-30 bg-red-500 text-white'}`}
+                                            onClick={async () => {
+                                                isApproved ? await handleConfirm() : await handleApprove()
+                                            }} 
+                                            disabled={!(amountValid && durationValid)}>
+                                            {
+                                                isApproved ? 'Confirm' : 'Approve'
+                                            }
+                                        </button>
+                                    </div>
                                 </div>
                             )
                         }

@@ -10,6 +10,9 @@ dependencies:
   autoprefixer:
     specifier: ^10.4.14
     version: 10.4.14(postcss@8.4.25)
+  bignumber.js:
+    specifier: 4.0.4
+    version: 4.0.4
   ethers:
     specifier: ^6.6.4
     version: 6.6.4
@@ -3954,6 +3957,10 @@ packages:
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
+    dev: false
+
+  /bignumber.js@4.0.4:
+    resolution: {integrity: sha512-LDXpJKVzEx2/OqNbG9mXBNvHuiRL4PzHCGfnANHMJ+fv68Ads3exDVJeGDJws+AoNEuca93bU3q+S0woeUaCdg==}
     dev: false
 
   /binary-extensions@2.2.0:
