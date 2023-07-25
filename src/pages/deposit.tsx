@@ -5,11 +5,14 @@ import cmc from './../utils/extras/cmc.json'
 import EarnersDropdown from "../components/EarnersDropdown"
 import { FaCheck } from "react-icons/fa"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
+import ERC20ABI from './../utils/ABIs/ERC20ABI.json'
 import { useContractInitializer } from "../hooks/useEthers"
 import { getAmountForAssets } from "../hooks/getAmountForAssets"
 import { ethers } from "ethers"
 import { addresses } from "../hooks/addresses"
 import { getDuration } from "../hooks/getDuration"
+import { useEthersSigner } from "../hooks/wagmiSigner"
+import { useNetwork } from "wagmi"
 
 const getAddressArray = async () => {
     const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
@@ -20,6 +23,19 @@ const getAddressArray = async () => {
     // console.log(addrArray);
 
     return addrArray;
+}
+
+const getFeePercent = async (value: number) => {
+    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+
+    const feePercent = await contract?.feePercent();
+    const base = await contract?.base();
+
+    const result = value * Number(feePercent) / Number(base);
+
+    // console.log(result);
+
+    return result;
 }
 
 const getTokenData = async (tokenAddr: string) => {
@@ -66,6 +82,9 @@ interface SP {
 const Deposits = () => {
 
     const dropdownOptions: string[] = [`weeks`, `months`, `years`];
+    const { chain } = useNetwork();
+    const cID = Number(chain?.id);
+    const signer = useEthersSigner({ chainId: cID });
 
     const [supportedAssets, setSupportedAssets] = useState<SP[]>([{
         address: '',
@@ -81,12 +100,13 @@ const Deposits = () => {
     const [amountValid, setAmountValid] = useState<boolean>(false);
     const [durationValid, setDurationValid] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<string>(dropdownOptions[0]);
+    const [withdrawalAmount, setWithdrawalAmount] = useState<number>(0);
 
     // Create a function that will be called when an option is selected in the dropdown
     const handleOptionChange = (option: string) => {
         setSelectedOption(option);
         // Check if the input value is valid
-        if (option !== 'weeks' || tokenDurations.includes(Number(selectedDuration))) {
+        if (Number(selectedDuration) > maxDuration && option === 'weeks' || option !== 'weeks' && Number(selectedDuration) !== 0 || tokenDurations.includes(Number(selectedDuration))) {
             setDurationValid(true);
         }
         else {
@@ -109,6 +129,32 @@ const Deposits = () => {
 
         fetchAssets();
     }, [])
+
+    useEffect(() => {
+        const calculateOutput = async () => {
+            let output: number = 0;
+            let amt: number = 0;
+
+            if (selectedOption === 'weeks') {
+                amt = Number(selectedAmount) * Number(selectedDuration);
+                output = amt - await getFeePercent(amt);
+            }
+            if (selectedOption === 'months') {
+                amt = Number(selectedAmount) * Number(selectedDuration) * 4;
+                output = amt - await getFeePercent(amt);
+            }
+            else {
+                amt = Number(selectedAmount) * Number(selectedDuration) * 52;
+                output = amt - await getFeePercent(amt);
+            }
+
+            // console.log(output)
+            setWithdrawalAmount(output);
+        }
+
+        calculateOutput();
+
+    }, [selectedAmount, selectedDuration, selectedOption])
 
     const maxTokenAmount = tokenAmounts ? Math.max(...tokenAmounts) : 0;
     const maxDuration = tokenDurations ? Math.max(...tokenDurations) : 0;
@@ -172,44 +218,30 @@ const Deposits = () => {
     }
 
     const selectDuration = async (amt: number) => {
-        // const duration = Number(dur);
 
         const dur = amt;
-        // console.log(duration.amount > maxDuration || tokenDurations.includes(Number(dur)))
-
-        // const duration: DT = {
-        //     time: selectedOption,
-        //     amount: dur,
-        // }
 
         setSelectedDuration(dur);
-        // console.log(duration);
+        
         setSelectedOption('weeks');
         handleOptionChange('weeks');
 
         // Check if the input value is valid
-        if (dur > maxDuration || tokenDurations.includes(dur) || dur < maxDuration && selectedOption !== 'weeks') {
+        if (dur > maxDuration || tokenDurations.includes(dur) || dur < maxDuration && selectedOption !== 'weeks' && dur !== 0) {
             setDurationValid(true);
         }
         else {
             setDurationValid(false);
         }
-        // return duration;
     }
 
     const handleDurationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const numericValue = Number(event.target.value);
-
-        // const duration: DT = {
-        //     time: selectedOption,
-        //     amount: numericValue,
-        // }
         
         setSelectedDuration(numericValue);
-        // console.log(duration);
 
         // Check if the input value is valid
-        if (numericValue > maxDuration || tokenDurations.includes(numericValue) || numericValue < maxDuration && selectedOption !== 'weeks') {
+        if (numericValue > maxDuration || tokenDurations.includes(numericValue) || numericValue < maxDuration && selectedOption !== 'weeks' && numericValue !== 0) {
             setDurationValid(true);
         }
         else {
@@ -217,9 +249,15 @@ const Deposits = () => {
         }
     }
 
-    const handleSend = async () => {
+    const handleApprove = async () => {
         selectedAmount && console.log(`${selectedAmount} ${selectedAsset?.symbol}`);
         console.log(`${selectedDuration} ${selectedOption}`);
+
+        const contract = new ethers.Contract(String(selectedAsset?.address), ERC20ABI, signer)
+
+        const approve = await contract?.approve(addresses.CofferCityVault[97], ethers.MaxUint256);
+        const res = approve.wait();
+        console.log(res);
     }
 
     return (
@@ -292,7 +330,7 @@ const Deposits = () => {
                                             id="wAmount" 
                                             name="wAmount" 
                                             className={`bg-transparent p-2 px-3 rounded-lg ring-2 ${amountValid ? 'ring-[#27A844]/90 focus:ring-[#27A844]/' : 'ring-red-500/90 focus:ring-red-500'} outline-none duration-300 w-fit`} 
-                                            placeholder="Ex. $200" />
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -332,7 +370,6 @@ const Deposits = () => {
                                             id="duration" 
                                             name="duration" 
                                             className={`bg-transparent p-2 px-3 rounded-lg ring-2 ${durationValid ? 'ring-[#27A844]/90 focus:ring-[#27A844]/' : 'ring-red-500/90 focus:ring-red-500'} outline-none duration-300 w-fit`}
-                                            placeholder="Ex. $200" 
                                             />
                                         </div>
                                         <div className="my-auto">
@@ -347,18 +384,23 @@ const Deposits = () => {
                             )
                         }
 
+                    </div>
+                    <div className='grid gap-3'>
+                        <div className='text-2xl font-bold font-dynapuff'>Summary</div>
+                        <div>
+                            You'll save {amountValid ? selectedAmount : '0'} {selectedAsset?.symbol} weekly and withdraw {withdrawalAmount} {selectedAsset?.symbol} after {durationValid ? selectedDuration : '0'} {selectedOption}
+                        </div>
                         {
                             selectedAsset && (
                                 <div className='w-full'>
                                     <button className={`my-auto rounded-lg border p-2 duration-300 
                                             ${amountValid && durationValid ? 'bg-[#27A844] hover:bg-[#27A844]/90 text-white' : 'opacity-30 cursor-default bg-red-500 text-white'}`}
-                                        onClick={async () => await handleSend()} >
-                                        Send
+                                        onClick={async () => await handleApprove()} >
+                                        Confirm
                                     </button>
                                 </div>
                             )
                         }
-
                     </div>
                 </div>
             </Layout>

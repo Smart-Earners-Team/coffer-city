@@ -41,7 +41,7 @@ const EarnersDropdown: FC<EarnersDropdownProps> = ({ className, optionClassName,
             </div>
 
             {isOpen && (
-                <div className="absolute w-full rounded shadow bg-white my-1">
+                <div className="absolute z-10 w-fit rounded shadow bg-white my-1">
                     {options.map((option, index) =>
                         <div
                             key={index}
