@@ -1,9 +1,10 @@
 import { useContractInitializer } from "./useEthers"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
+import { addresses } from "./addresses";
 
 export const getUserDetails = async (address: string ) => {
 
-    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: '0xf1dEDfDcFEe07B6Baa24918DfaD3ef83bCC15Daf', contractABI: CofferCityVaultABI });
+    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
     // console.log(contract);
 
     try {
