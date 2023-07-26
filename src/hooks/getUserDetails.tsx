@@ -1,6 +1,7 @@
 import { useContractInitializer } from "./useEthers"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
 import { addresses } from "./addresses";
+import { ethers } from "ethers";
 
 export const getUserDetails = async (address: string ) => {
 
@@ -9,6 +10,7 @@ export const getUserDetails = async (address: string ) => {
 
     try {
         const userDepositIds = await contract?.getDepositsByOwnerAddress(address);
+        // console.log(userDepositIds);
 
         let totalTopUps = 0;
         let firstDepositTime = Date.now() / 1000; // Current timestamp in seconds
@@ -23,7 +25,8 @@ export const getUserDetails = async (address: string ) => {
         const userDeposits = [];
 
         for (let i = 0; i < userDepositIds.length; i++) {
-            const deposit = await contract?.deposit(userDepositIds[i]);
+            const deposit = await contract?.getDepositDetails(userDepositIds[i]);
+            // console.log(deposit);
 
             // Get asset address as string
             const assetAddress = deposit.asset.toString();
@@ -35,7 +38,7 @@ export const getUserDetails = async (address: string ) => {
                 totalFeesPaid[assetAddress] = 0;
             }
 
-            const debtWeeks = await contract?.getDebtWeeks(userDepositIds[i]);
+            const debtWeeks = ethers.toNumber(await contract?.getDebtWeeks(Number(userDepositIds[i])));
 
             // Update per-asset totals
             totalBalances[assetAddress] += parseInt(deposit.balance);
@@ -43,8 +46,8 @@ export const getUserDetails = async (address: string ) => {
             totalFeesPaid[assetAddress] += (debtWeeks * parseInt(deposit.amountPerWeek)) - parseInt(deposit.balance);
 
             totalTopUps += parseInt(deposit.topUps);
-            firstDepositTime = Math.min(firstDepositTime, deposit.startTime);
-            latestDepositTime = Math.max(latestDepositTime, deposit.startTime);
+            firstDepositTime = Math.min(firstDepositTime, Number(deposit.startTime));
+            latestDepositTime = Math.max(latestDepositTime, Number(deposit.startTime));
             isActive = isActive || !deposit.withdrawn;
 
             userDeposits.push(deposit);

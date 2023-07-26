@@ -14,6 +14,7 @@ import { getDuration } from "../hooks/getDuration"
 import { useEthersSigner } from "../hooks/wagmiSigner"
 import { useAccount, useNetwork } from "wagmi"
 import BigNumber from 'bignumber.js'
+import { useNavigate } from 'react-router-dom';
 
 const getAddressArray = async () => {
     const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
@@ -67,7 +68,7 @@ const populateAssets = async () => {
             assets.push(tk);
         }
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 
     // console.log(assets);
@@ -89,6 +90,7 @@ const Deposits = () => {
     // console.log(typeof address);
     const cID = Number(chain?.id);
     const signer = useEthersSigner({ chainId: cID });
+    const history = useNavigate();
 
     const [supportedAssets, setSupportedAssets] = useState<SP[]>([{
         address: '',
@@ -228,7 +230,7 @@ const Deposits = () => {
         const dur = amt;
 
         setSelectedDuration(dur);
-        
+
         setSelectedOption('weeks');
         handleOptionChange('weeks');
 
@@ -243,7 +245,7 @@ const Deposits = () => {
 
     const handleDurationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const numericValue = Number(event.target.value);
-        
+
         setSelectedDuration(numericValue);
 
         // Check if the input value is valid
@@ -267,11 +269,42 @@ const Deposits = () => {
     }
 
     const handleConfirm = async () => {
-        // const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+        const ref: string = "0x3ffAf5Be4ADa54b0093418418711153e3201226a";
+        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
 
-        // const newDeposit = await contract.newDeposit();
+        let amt: string = '';
+        let dur: number = 0;
+        let assetIndex: number = (selectedAsset) ? supportedAssets.findIndex(asset => asset.address === selectedAsset.address && asset.symbol === selectedAsset.symbol && asset.logo === selectedAsset.logo) : -1;
+        // console.log(assetIndex);
+
+        let durTier: number = (tokenDurations.includes(Number(selectedDuration))) ? tokenDurations.indexOf(Number(selectedDuration)) : tokenDurations.indexOf(maxDuration);
+        //(tokenDurations.indexOf(Number(selectedDuration)) !== -1) ? tokenDurations.indexOf(Number(selectedDuration) : tokenDurations.indexOf(maxDuration);
+        let amtTier: number = (tokenAmounts.includes(Number(selectedAmount))) ? tokenAmounts.indexOf(Number(selectedAmount)) : 255;
+        // console.log(amtTier);
+        //(tokenAmounts.indexOf(selectedAmount) !== -1) ? tokenAmounts.indexOf(selectedAmount): 255;
+
+        if (selectedOption === 'weeks') {
+            dur = Number(selectedDuration) * 604800;
+        } else if (selectedOption === 'months') {
+            dur = Number(selectedDuration) * 2628000;
+        } else {
+            dur = Number(selectedDuration) * 31536000;
+        }
+
+        if (amtTier == 255) {
+            const assetContract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
+            const assetDecimals: number = await assetContract?.decimals();
+
+            amt = new BigNumber(Number(selectedAmount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
+        }
+
+        const newDeposit = await contract.newDeposit(amt, dur, assetIndex, durTier, amtTier, ref);
+        await newDeposit.wait();
         // console.log(newDeposit);
-        console.log('newDeposit');
+        if (newDeposit) {
+            await checkApproval();
+            history('/overview');
+        };
     }
 
     const checkApproval = async () => {
@@ -286,12 +319,12 @@ const Deposits = () => {
         const value = new BigNumber(Number(selectedAmount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
 
         // console.log(allowance);
-        console.log(value);
+        // console.log(value);
 
         // const status = (Number(allowance) >= Number(selectedAmount)) ? true : false;
         const status = (new BigNumber(allowance).gte(value)) ? true : false;
 
-        console.log(status);
+        // console.log(status);
         setIsApproved(status);
     }
 
@@ -356,15 +389,15 @@ const Deposits = () => {
                                             )
                                         }
                                         <div className="flex flex-wrap gap-2 text-xs">
-                                            <input 
-                                            onChange={(event: any) => handleAmountChange(event)} 
-                                            value={selectedAmount} 
-                                            min={maxTokenAmount} 
-                                            autoFocus={false} 
-                                            type="number" 
-                                            id="wAmount" 
-                                            name="wAmount" 
-                                            className={`bg-transparent p-2 px-3 rounded-lg ring-2 ${amountValid ? 'ring-[#27A844]/90 focus:ring-[#27A844]/' : 'ring-red-500/90 focus:ring-red-500'} outline-none duration-300 w-fit`} 
+                                            <input
+                                                onChange={(event: any) => handleAmountChange(event)}
+                                                value={selectedAmount}
+                                                min={maxTokenAmount}
+                                                autoFocus={false}
+                                                type="number"
+                                                id="wAmount"
+                                                name="wAmount"
+                                                className={`bg-transparent p-2 px-3 rounded-lg ring-2 ${amountValid ? 'ring-[#27A844]/90 focus:ring-[#27A844]/' : 'ring-red-500/90 focus:ring-red-500'} outline-none duration-300 w-fit`}
                                             />
                                         </div>
                                     </div>
@@ -384,7 +417,7 @@ const Deposits = () => {
                                                         tokenDurations.map((td) => (
                                                             <button
                                                                 key={td} className={`my-auto rounded-lg border p-2 duration-300 
-                                                                ${selectedOption === 'weeks' && selectedDuration  === td ? 'bg-[#27A844] text-white' : 'hover:bg-[#27A844]/40'}`}
+                                                                ${selectedOption === 'weeks' && selectedDuration === td ? 'bg-[#27A844] text-white' : 'hover:bg-[#27A844]/40'}`}
                                                                 onClick={async () => {
                                                                     await selectDuration(td);
                                                                 }}>
@@ -396,15 +429,15 @@ const Deposits = () => {
                                             )
                                         }
                                         <div className="grid md:flex gap-2 text-xs">
-                                            <input 
-                                            onChange={handleDurationChange} 
-                                            value={Number(selectedDuration)} 
-                                            min={maxDuration}
-                                            autoFocus={false}
-                                            type="number" 
-                                            id="duration" 
-                                            name="duration" 
-                                            className={`bg-transparent p-2 px-3 rounded-lg ring-2 ${durationValid ? 'ring-[#27A844]/90 focus:ring-[#27A844]/' : 'ring-red-500/90 focus:ring-red-500'} outline-none duration-300 w-fit`}
+                                            <input
+                                                onChange={handleDurationChange}
+                                                value={Number(selectedDuration)}
+                                                min={maxDuration}
+                                                autoFocus={false}
+                                                type="number"
+                                                id="duration"
+                                                name="duration"
+                                                className={`bg-transparent p-2 px-3 rounded-lg ring-2 ${durationValid ? 'ring-[#27A844]/90 focus:ring-[#27A844]/' : 'ring-red-500/90 focus:ring-red-500'} outline-none duration-300 w-fit`}
                                             />
                                         </div>
                                         <div className="my-auto">
@@ -421,7 +454,7 @@ const Deposits = () => {
 
                     </div>
                     <div className='grid gap-3'>
-                        
+
                         {
                             selectedAsset && (
                                 <div className='grid gap-3'>
@@ -434,7 +467,7 @@ const Deposits = () => {
                                             ${amountValid && durationValid ? 'bg-[#27A844] hover:bg-[#27A844]/90 text-white' : 'opacity-30 bg-red-500 text-white'}`}
                                             onClick={async () => {
                                                 isApproved ? await handleConfirm() : await handleApprove()
-                                            }} 
+                                            }}
                                             disabled={!(amountValid && durationValid)}>
                                             {
                                                 isApproved ? 'Confirm' : 'Approve'

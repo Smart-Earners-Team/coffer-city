@@ -1,10 +1,13 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout, { useWagmiDetails } from "../components/wrap"
 import { Link } from "react-router-dom"
 import { FaCopy, FaEnvelope, FaLinkedin, FaTwitter } from "react-icons/fa"
 import piggyBank from './../assets/svgs/piggybank.svg'
 import cofferchest from './../assets/svgs/coffer-chest.svg'
+import { useContractInitializer } from "../hooks/useEthers"
+import { addresses } from "../hooks/addresses"
+import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
 
 export function copyToClipboard(value: string) {
     try {
@@ -15,17 +18,47 @@ export function copyToClipboard(value: string) {
     }
 }
 
+const getUserTeamData = async (address: string) => {
+    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+
+    const res = await contract?.userTeamData(address);
+    // console.log(res);
+    return res;
+}
+
 const Referral = () => {
 
     const { address } = useWagmiDetails();
 
     const [activeTab, setActiveTab] = useState("activeRewards");
 
+    const [level1Referrals, setLevel1Referrals] = useState<number>(0)
+    const [level2Referrals, setLevel2Referrals] = useState<number>(0)
+    const [level3Referrals, setLevel3Referrals] = useState<number>(0)
+
     const tabs = [
         { name: "Active Rewards", id: "activeRewards" },
         { name: "My Rewards", id: "myRewards" },
         // Add more tabs here as needed
     ];
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const res = await getUserTeamData(String(address));
+            const multilevel = res[1];
+            // console.log(multilevel);
+            const lv1 = multilevel[0];
+            const lv2 = multilevel[1];
+            const lv3 = multilevel[2];
+            // console.log(lv1, lv2, lv3);
+            setLevel1Referrals(Number(lv1));
+            setLevel2Referrals(Number(lv2));
+            setLevel3Referrals(Number(lv3));
+            // console.log(level1Referrals, level2Referrals, level3Referrals);
+        }
+
+        fetchData();
+    }, [])
 
     const ownerReferral = `coffer.city/rewards/${address}`
 
@@ -84,21 +117,21 @@ const Referral = () => {
                             <div className="grid gap-2 shadow-lg rounded-xl bg-[#02075d]/5 p-5">
                                 <div className="text-lg font-bold">Level 1 <span className="text-xs font-normal">(Direct Referral)</span></div>
                                 <div className="mx-2">
-                                    <span className="font-bold">2</span>
+                                    <span className="font-bold">{level1Referrals}</span>
                                     <small className="uppercase mx-1">users</small>
                                 </div>
                             </div>
                             <div className="grid gap-2 shadow-lg rounded-xl bg-[#02075d]/10 p-5">
                                 <div className="text-lg font-bold">Level 2</div>
                                 <div className="mx-2">
-                                    <span className="font-bold">0</span>
+                                    <span className="font-bold">{level2Referrals}</span>
                                     <small className="uppercase mx-1">users</small>
                                 </div>
                             </div>
                             <div className="grid gap-2 shadow-lg rounded-xl bg-[#02075d]/30 p-5">
                                 <div className="text-lg font-bold">Level 3</div>
                                 <div className="mx-2">
-                                    <span className="font-bold">0</span>
+                                    <span className="font-bold">{level3Referrals}</span>
                                     <small className="uppercase mx-1">users</small>
                                 </div>
                             </div>
