@@ -108,6 +108,7 @@ const Deposits = () => {
     const [selectedOption, setSelectedOption] = useState<string>(dropdownOptions[0]);
     const [withdrawalAmount, setWithdrawalAmount] = useState<number>(0);
     const [isApproved, setIsApproved] = useState<boolean>(false);
+    const [isBalanceSufficient, setIsBalanceSufficient] = useState<boolean>(false);
 
     // Create a function that will be called when an option is selected in the dropdown
     const handleOptionChange = (option: string) => {
@@ -162,7 +163,7 @@ const Deposits = () => {
 
         calculateOutput();
 
-    }, [selectedAmount, selectedDuration, selectedOption])
+    }, [address, selectedAmount, selectedDuration, selectedOption])
 
     const maxTokenAmount = tokenAmounts ? Math.max(...tokenAmounts) : 0;
     const maxDuration = tokenDurations ? Math.max(...tokenDurations) : 0;
@@ -185,6 +186,8 @@ const Deposits = () => {
 
             // console.log(tokenTiers);
             // console.log(durationTiers);
+
+            await checkApproval();
 
             setTokenAmounts(tokenTiers);
             setTokenDurations(durationTiers);
@@ -269,10 +272,11 @@ const Deposits = () => {
     }
 
     const handleConfirm = async () => {
-        const ref: string = "0x3ffAf5Be4ADa54b0093418418711153e3201226a";
+        setAmountValid(false);
+        const ref: string = "0xBD8F7209033bA6BA81e122C3070C4F613c252269";
         const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
 
-        let amt: string = '';
+        let amt: string = '0';
         let dur: number = 0;
         let assetIndex: number = (selectedAsset) ? supportedAssets.findIndex(asset => asset.address === selectedAsset.address && asset.symbol === selectedAsset.symbol && asset.logo === selectedAsset.logo) : -1;
         // console.log(assetIndex);
@@ -324,8 +328,15 @@ const Deposits = () => {
         // const status = (Number(allowance) >= Number(selectedAmount)) ? true : false;
         const status = (new BigNumber(allowance).gte(value)) ? true : false;
 
+        const balance = await contract?.balanceOf(address);
+        // console.log(balance);
+
+        const balSuf = (new BigNumber(balance).gte(value)) ? true : false;
+
         // console.log(status);
+        // console.log(balSuf);
         setIsApproved(status);
+        setIsBalanceSufficient(balSuf);
     }
 
     return (
@@ -473,6 +484,13 @@ const Deposits = () => {
                                                 isApproved ? 'Confirm' : 'Approve'
                                             }
                                         </button>
+                                        {
+                                            !isBalanceSufficient && (
+                                            <div className='italic text-xs text-red-500 py-2'>
+                                                Insufficient {selectedAsset.symbol} balance.
+                                            </div>
+                                            )
+                                        }
                                     </div>
                                 </div>
                             )

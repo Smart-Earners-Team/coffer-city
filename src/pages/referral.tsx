@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout, { useWagmiDetails } from "../components/wrap"
 import { Link } from "react-router-dom"
-import { FaCopy, FaEnvelope, FaLinkedin, FaTwitter } from "react-icons/fa"
+import { FaCheckCircle, FaCopy, FaEnvelope, FaLinkedin, FaTwitter } from "react-icons/fa"
 import piggyBank from './../assets/svgs/piggybank.svg'
 import cofferchest from './../assets/svgs/coffer-chest.svg'
 import { useContractInitializer } from "../hooks/useEthers"
 import { addresses } from "../hooks/addresses"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
+import { Toast, useToast } from "../hooks/useToast"
 
 export function copyToClipboard(value: string) {
     try {
@@ -27,6 +28,8 @@ const getUserTeamData = async (address: string) => {
 }
 
 const Referral = () => {
+
+    const { isActive, show, hide } = useToast();
 
     const { address } = useWagmiDetails();
 
@@ -78,7 +81,10 @@ const Referral = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1 px-5 flex gap-3 justify-between">
                                 <div className="opacity-90 text-xs md:text-sm select-none overflow-hidden overflow-ellipsis whitespace-nowrap my-auto">{ownerReferral}</div>
-                                <button onClick={() => copyToClipboard(`https://${ownerReferral}`)} className="float-right flex w-fit gap-1">
+                                <button onClick={() => {
+                                    copyToClipboard(`https://${ownerReferral}`);
+                                    show(3000)
+                                }} className="float-right flex w-fit gap-1">
                                     <FaCopy className='text-lg'/>
                                     <small className="whitespace-nowrap">Copy Link</small>
                                 </button>
@@ -202,6 +208,16 @@ const Referral = () => {
                                 <div>null</div>
                             )}
                         </div>
+                    </div>
+
+                    <div className="overflow-hidden">
+                        <Toast
+                            isActive={isActive}
+                            title="Success"
+                            subtitle="Referral link copied!"
+                            icon={<FaCheckCircle className='text-xl'/>}
+                            hide={hide}
+                        />
                     </div>
 
                 </div>

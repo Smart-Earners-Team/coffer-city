@@ -67,5 +67,36 @@ export const getUserDetails = async (address: string ) => {
 
     } catch (error) {
         console.log(error);
+        return {
+            numberOfDeposits: 0,
+            totalTopUps: 0,
+            userDeposits: [],
+            totalBalances: 0, // This is a mapping of asset address -> total balance
+            totalDebts: 0, // This is a mapping of asset address -> total debt
+            firstDepositTime: 0,
+            latestDepositTime: 0,
+            totalFeesPaid: 0, // This is a mapping of asset address -> total fees paid
+            isActive: false,
+        }
     }
+}
+
+export const getDepositIds = async (address: string) => {
+    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    // console.log(contract);
+
+    const userDepositIds = await contract?.getDepositsByOwnerAddress(address);
+    // console.log(userDepositIds);
+    return userDepositIds;
+}
+
+export const getProgressPercentage = (startTime: number, duration: number) => {
+    const elapsedTime: number = (Date.now() - (startTime * 1000));
+    // console.log(elapsedTime);
+    // console.log(Date.now());
+    // console.log((startTime + duration));
+    // const progressPercentage: number = (((elapsedTime / duration) * 100) < 100) ? ((elapsedTime / duration) * 100) : 100;
+    // console.log(progressPercentage);
+    const progressPercentage: number = (elapsedTime / (duration * 1000)) * 100;
+    return Math.min(progressPercentage, 100);
 }

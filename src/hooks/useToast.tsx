@@ -1,72 +1,61 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSpring, animated } from "react-spring";
 
 // useToast hook
-export const useToast = (initialIsActive: boolean) => {
+export const useToast = (initialIsActive = false) => {
     const [isActive, setIsActive] = useState(initialIsActive);
-    const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
-    const show = (duration: number) => {
+    const show = useCallback((duration = 3000) => {
         setIsActive(true);
-        if (timer !== null) {
-            clearTimeout(timer);
-        }
-        setTimer(
-            setTimeout(() => {
-                setIsActive(false);
-            }, duration)
-        );
-    };
+        const timerId = window.setTimeout(() => setIsActive(false), duration);
+        return () => window.clearTimeout(timerId); // cleanup to prevent memory leak
+    }, []);
 
-    const hide = () => {
-        setIsActive(false);
-        if (timer !== null) {
-            clearTimeout(timer);
-            setTimer(null);
-        }
-    };
+    const hide = useCallback(() => setIsActive(false), []);
 
     return { isActive, show, hide };
 };
 
 // Toast Component
-export const Toast: React.FC<{
+interface ToastProps {
     isActive: boolean;
-    duration: number;
-    title: string;
+    title?: string;
     subtitle: string;
-    Icon: React.ReactNode;
-}> = ({ isActive, duration, title, subtitle, Icon }) => {
+    icon?: React.ReactNode;
+    hide: () => void; // New hide prop
+}
+
+export const Toast: React.FC<ToastProps> = ({ isActive, title, subtitle, icon, hide }) => {
+    const styles = useSpring({
+        transform: isActive
+            ? "translate3d(0%, 0, 0) scale(1)"  // fully visible and at normal size
+            : "translate3d(100%, 0, 0) scale(0)",  // fully off screen and scale down to 0
+        config: { tension: 150, friction: 30 },
+    });
+
     useEffect(() => {
-        let timer: NodeJS.Timeout;
         if (isActive) {
-            timer = setTimeout(() => {
-                isActive = false;
-            }, duration);
+            const timerId = window.setTimeout(hide, 3000); // Hide the toast after 3 seconds
+            return () => window.clearTimeout(timerId); // cleanup to prevent memory leak
         }
-        return () => {
-            clearTimeout(timer);
-        };
-    }, [isActive, duration]);
+    }, [isActive, hide]); // Add hide to the dependency array
 
     if (!isActive) return null;
 
     return (
-        <div
-            className="transform transition-transform duration-500 ease-in-out absolute top-6 right-8 rounded-3xl bg-white p-5 shadow-md overflow-hidden"
-        >
-            <div className="flex items-center">
-                <div className="flex items-center justify-center h-9 w-9 bg-blue-600 text-white rounded-full">
-                    {Icon}
+        <div className="overflow-hidden">
+            <animated.div style={styles} className="absolute top-6 right-6 rounded bg-white p-5 shadow-md">
+                <div className="flex items-center">
+                    <div className="flex items-center justify-center h-9 w-9 bg-blue-900 text-white rounded-full">
+                        {icon}
+                    </div>
+                    <div className="ml-5">
+                        <span className="block text-lg font-bold text-gray-800">{title}</span>
+                        <span className="block text-base font-light text-gray-600">{subtitle}</span>
+                    </div>
                 </div>
-                <div className="ml-5">
-                    <span className="block text-lg font-bold text-gray-800">{title}</span>
-                    <span className="block text-base font-light text-gray-600">
-                        {subtitle}
-                    </span>
-                </div>
-            </div>
-            <i className="fa-solid fa-xmark absolute top-2.5 right-4 p-1 cursor-pointer opacity-70 hover:opacity-100"></i>
-            <div className="h-1 w-full bg-blue-600"></div>
+                {/* <FaTimes onClick={hide} className="absolute top-2.5 right-4 p-1 cursor-pointer opacity-70 hover:opacity-100" /> */}
+            </animated.div>
         </div>
     );
 };
