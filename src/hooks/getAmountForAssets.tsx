@@ -5,9 +5,9 @@ import { addresses } from "./addresses";
 
 export const getAmountForAssets = async (address: string) => {
 
-    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
 
-    const assetContract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: address, contractABI: ERC20ABI });
+    const assetContract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: address, contractABI: ERC20ABI });
 
     const amountTiersByToken: bigint[] = await contract?.getAmountTiersByToken(address);
     // console.log(amountTiersByToken);

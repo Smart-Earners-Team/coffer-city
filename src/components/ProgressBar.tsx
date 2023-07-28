@@ -10,20 +10,20 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0 }) => {
         from: { width: '0%' },
         to: { width: `${percentage}%` },
         config: {
-            tension: 170,
-            friction: 26,
+            tension: 50,
+            friction: 20,
         },
     });
 
     return (
-        <div className="w-full h-full bg-slate-50 flex items-center justify-start overflow-hidden">
+        <div className="w-full rounded-l-xl rounded-r-xl h-6 bg-slate-50/70 flex items-center justify-start overflow-hidden">
             <animated.div
                 style={{
                     width,
                 }}
-                className="h-full bg-blue-900 rounded-r-sm"
+                className="h-full bg-green-600/80"
             />
-            <div className="m-2 text-xs text-blue-900">
+            <div className="m-2 text-xs text-slate-600">
                 {percentage.toFixed(4)} %
             </div>
         </div>

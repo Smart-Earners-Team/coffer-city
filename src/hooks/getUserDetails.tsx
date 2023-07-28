@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 
 export const getUserDetails = async (address: string ) => {
 
-    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
     // console.log(contract);
 
     try {
@@ -82,12 +82,47 @@ export const getUserDetails = async (address: string ) => {
 }
 
 export const getDepositIds = async (address: string) => {
-    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
     // console.log(contract);
 
     const userDepositIds = await contract?.getDepositsByOwnerAddress(address);
     // console.log(userDepositIds);
     return userDepositIds;
+}
+
+export const getDepositDetails = async (id: number) => {
+    let result = {
+        owner: '',
+        asset: '',
+        startTime: 0,
+        amountPerWeek: 0,
+        duration: 0,
+        balance: 0,
+        topUps: 0,
+        withdrawn: false,
+    }
+
+    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+
+    try {
+        const data = await contract?.getDepositDetails(id);
+
+        result = {
+            owner: String(data[0]),
+            asset: String(data[1]),
+            startTime: Number(data[2]),
+            amountPerWeek: Number(data[3]),
+            duration: Number(data[4]),
+            balance: Number(data[5]),
+            topUps: Number(data[6]),
+            withdrawn: Boolean(data[7]),
+        };
+
+        return result;
+    } catch (error) {
+        console.error(error);
+        return result;
+    }
 }
 
 export const getProgressPercentage = (startTime: number, duration: number) => {

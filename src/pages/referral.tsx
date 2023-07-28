@@ -20,7 +20,7 @@ export function copyToClipboard(value: string) {
 }
 
 const getUserTeamData = async (address: string) => {
-    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
 
     const res = await contract?.userTeamData(address);
     // console.log(res);

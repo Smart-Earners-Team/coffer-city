@@ -17,7 +17,7 @@ import BigNumber from 'bignumber.js'
 import { useNavigate } from 'react-router-dom';
 
 const getAddressArray = async () => {
-    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
 
     let addrArray: string[];
 
@@ -28,7 +28,7 @@ const getAddressArray = async () => {
 }
 
 const getFeePercent = async (value: number) => {
-    const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
 
     const feePercent = await contract?.feePercent();
     const base = await contract?.base();
@@ -40,7 +40,7 @@ const getFeePercent = async (value: number) => {
     return result;
 }
 
-const getTokenData = async (tokenAddr: string) => {
+export const getTokenData = async (tokenAddr: string) => {
 
     let tokenData = {
         address: tokenAddr,
@@ -161,7 +161,9 @@ const Deposits = () => {
             await checkApproval();
         }
 
-        calculateOutput();
+        if (amountValid && durationValid) {
+            calculateOutput();
+        };
 
     }, [address, selectedAmount, selectedDuration, selectedOption])
 
@@ -169,9 +171,11 @@ const Deposits = () => {
     const maxDuration = tokenDurations ? Math.max(...tokenDurations) : 0;
 
     const selectAsset = async (val: SP) => {
-        setSelectedAsset(val);
+        if (supportedAssets) setSelectedAsset(val);
+
         try {
             const res = await getAmountForAssets(val.address);
+            // console.log(res);
             const tRes: bigint[] = res.amountTiersByToken;
             // console.log(tRes);
 
@@ -187,14 +191,12 @@ const Deposits = () => {
             // console.log(tokenTiers);
             // console.log(durationTiers);
 
-            await checkApproval();
-
             setTokenAmounts(tokenTiers);
             setTokenDurations(durationTiers);
 
         } catch (error) {
             console.log(error)
-        }
+        }        
     }
 
     const selectAmount = async (amt: string) => {
@@ -204,7 +206,9 @@ const Deposits = () => {
 
         // Check if the input value is valid
         if (amount > maxTokenAmount || tokenAmounts.includes(amount)) {
+            await handleBalance(amount);
             setAmountValid(true);
+            await checkApproval();
         }
         else {
             setAmountValid(false);
@@ -212,7 +216,7 @@ const Deposits = () => {
         return amount;
     }
 
-    const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAmountChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
         setSelectedAmount(value);
 
@@ -221,7 +225,9 @@ const Deposits = () => {
 
         // Check if the input value is valid
         if (numericValue > maxTokenAmount || tokenAmounts.includes(numericValue)) {
+            await handleBalance(numericValue);
             setAmountValid(true);
+            await checkApproval();
         }
         else {
             setAmountValid(false);
@@ -296,7 +302,7 @@ const Deposits = () => {
         }
 
         if (amtTier == 255) {
-            const assetContract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
+            const assetContract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
             const assetDecimals: number = await assetContract?.decimals();
 
             amt = new BigNumber(Number(selectedAmount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
@@ -312,30 +318,48 @@ const Deposits = () => {
     }
 
     const checkApproval = async () => {
-        const contract = await useContractInitializer({ contractType: 'read', rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
+        if (selectedAmount) {
+            const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
 
-        const allowance: number = await contract?.allowance(address, addresses.CofferCityVault[97]);
+            const allowance: number = await contract?.allowance(address, addresses.CofferCityVault[97]);
+
+            const assetDecimals: number = await contract?.decimals();
+            // console.log(assetDecimals);
+
+            // const value = (Number(selectedAmount) * assetDecimals);
+            const value = new BigNumber(Number(selectedAmount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
+
+            // console.log(allowance);
+            // console.log(value);
+
+            // const status = (Number(allowance) >= Number(selectedAmount)) ? true : false;
+
+            const status = (new BigNumber(allowance).gte(value)) ? true : false;
+
+            // const balance = await contract?.balanceOf(address);
+            // console.log(balance);
+
+            // const balSuf = (new BigNumber(balance).gte(value)) ? true : false;
+
+            // console.log(status);
+            // console.log(balSuf);
+            setIsApproved(status);
+        }
+    }
+
+    const handleBalance = async (amt: number) => {
+        const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
 
         const assetDecimals: number = await contract?.decimals();
         // console.log(assetDecimals);
 
-        // const value = (Number(selectedAmount) * assetDecimals);
-        const value = new BigNumber(Number(selectedAmount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
-
-        // console.log(allowance);
-        // console.log(value);
-
-        // const status = (Number(allowance) >= Number(selectedAmount)) ? true : false;
-        const status = (new BigNumber(allowance).gte(value)) ? true : false;
+        const value = new BigNumber(amt).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
 
         const balance = await contract?.balanceOf(address);
         // console.log(balance);
 
         const balSuf = (new BigNumber(balance).gte(value)) ? true : false;
 
-        // console.log(status);
-        // console.log(balSuf);
-        setIsApproved(status);
         setIsBalanceSufficient(balSuf);
     }
 
@@ -352,7 +376,7 @@ const Deposits = () => {
                             <div className="text-4xl font-dynapuff font-bold">Pick An Asset</div>
                             <div className="grid gap-5 grid-cols-2 md:grid-cols-5">
                                 {
-                                    supportedAssets.map((val) => (
+                                    supportedAssets && supportedAssets.map((val) => (
                                         <div
                                             key={val.address}
                                             className={`grid gap-2 rounded-xl p-5 relative cursor-pointer transform transition-transform duration-300 ease-in-out ${val.address === selectedAsset?.address ? 'bg-[#27A844]/40' : 'bg-slate-300/30'}`}
@@ -401,7 +425,7 @@ const Deposits = () => {
                                         }
                                         <div className="flex flex-wrap gap-2 text-xs">
                                             <input
-                                                onChange={(event: any) => handleAmountChange(event)}
+                                                onChange={async (event: any) => await handleAmountChange(event)}
                                                 value={selectedAmount}
                                                 min={maxTokenAmount}
                                                 autoFocus={false}
@@ -485,7 +509,7 @@ const Deposits = () => {
                                             }
                                         </button>
                                         {
-                                            !isBalanceSufficient && (
+                                            (!isBalanceSufficient && amountValid) && (
                                             <div className='italic text-xs text-red-500 py-2'>
                                                 Insufficient {selectedAsset.symbol} balance.
                                             </div>

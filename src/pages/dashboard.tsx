@@ -106,8 +106,8 @@ const Dashboard = () => {
                                     <FaChartPie className='m-3 text-xl' />
                                 </span>
                                 <div className="flex flex-col justify-center">
-                                    <div className="font-bold">New Deposit</div>
-                                    <div className="text-xs">Invest your tokens and get good returns</div>
+                                    <div className="font-bold">New Savings</div>
+                                    <div className="text-xs">Start saving for that well-deserved vacation or your dream home.</div>
                                 </div>
                             </Link>
 
