@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Layout from '../components/wrap'
 import { Helmet } from 'react-helmet'
 import { useParams } from 'react-router-dom'
 import { getDepositDetails } from '../hooks/getUserDetails'
 import { useAccount } from 'wagmi'
 import { getTokenData } from './deposit'
+import usePreloader, { Preloader } from '../hooks/usePreloader'
+import { WalletConnectButton } from '../components/ConnectWallet'
+import { useDateFromTimestamp } from '../hooks/getDuration'
 
 interface DepositDetails {
     owner: string;
@@ -26,7 +29,7 @@ interface SP {
 const DepositInfo = () => {
 
     const { depositId } = useParams();
-    const { address } = useAccount();
+    const { address, isConnected, isConnecting } = useAccount();
     
     const [ depositDetails, setDepositDetails ] = useState<DepositDetails | null>(null);
     const [assetDetails, setAssetDetails] = useState<SP | null>(null);
@@ -46,6 +49,27 @@ const DepositInfo = () => {
 
     console.log(depositDetails);
     // console.log(assetDetails);
+
+    // Define your text conditionally
+    let loadingText = 'Fetching data . . .';
+    if (!isConnected) loadingText = "Please connect your wallet!"
+    if (isConnecting) loadingText = "Connecting to your wallet. Please wait!"
+
+    const checks = useCallback(async () => {
+        // Perform your checks here. For example:
+        const loaded = isConnected ? true : false;
+        return loaded;
+    }, [address, isConnected]);
+
+    // Use the usePreloader hook, passing in the checks and the custom text
+    const { loading } = usePreloader({ checks, text: loadingText });
+
+    // Conditionally render the Preloader or your actual content based on the loading state
+    if (loading) {
+        return <Preloader text={loadingText} children={
+            <WalletConnectButton />
+        } />;
+    };
 
     return (
         <React.Fragment>
@@ -74,8 +98,25 @@ const DepositInfo = () => {
                                 <div>{assetDetails?.symbol}</div>
                             </div>
                         </div>
+                        <div className='p-3 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex'>
+                            <div className='text-3xl my-auto rounded-full bg-slate-50 p-5 w-24 h-24'>
+                                <svg fill='#ff7700' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M232 120C232 106.7 242.7 96 256 96C269.3 96 280 106.7 280 120V243.2L365.3 300C376.3 307.4 379.3 322.3 371.1 333.3C364.6 344.3 349.7 347.3 338.7 339.1L242.7 275.1C236 271.5 232 264 232 255.1L232 120zM256 0C397.4 0 512 114.6 512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0zM48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48C141.1 48 48 141.1 48 256z"/></svg>
+                            </div>
+                            <div className='my-auto'>
+                                <div className='font-extrabold text-lg'>Start Time</div>
+                                <div>{useDateFromTimestamp(Number(depositDetails?.startTime))}</div>
+                            </div>
+                        </div>
+                        <div className='p-3 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex'>
+                            <div className='text-3xl my-auto rounded-full bg-slate-50 p-5 w-24 h-24'>
+                                <svg fill='#5f3502' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M0 112.5V422.3c0 18 10.1 35 27 41.3c87 32.5 174 10.3 261-11.9c79.8-20.3 159.6-40.7 239.3-18.9c23 6.3 48.7-9.5 48.7-33.4V89.7c0-18-10.1-35-27-41.3C462 15.9 375 38.1 288 60.3C208.2 80.6 128.4 100.9 48.7 79.1C25.6 72.8 0 88.6 0 112.5zM288 352c-44.2 0-80-43-80-96s35.8-96 80-96s80 43 80 96s-35.8 96-80 96zM64 352c35.3 0 64 28.7 64 64H64V352zm64-208c0 35.3-28.7 64-64 64V144h64zM512 304v64H448c0-35.3 28.7-64 64-64zM448 96h64v64c-35.3 0-64-28.7-64-64z"/></svg>
+                            </div>
+                            <div className='my-auto'>
+                                <div className='font-extrabold text-lg'>Balance</div>
+                                <div>{Number(depositDetails?.balance)}</div>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
             </Layout>
         </React.Fragment>

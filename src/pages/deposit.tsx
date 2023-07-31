@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
 import cmc from './../utils/extras/cmc.json'
@@ -15,6 +15,8 @@ import { useEthersSigner } from "../hooks/wagmiSigner"
 import { useAccount, useNetwork } from "wagmi"
 import BigNumber from 'bignumber.js'
 import { useNavigate } from 'react-router-dom';
+import usePreloader, { Preloader } from "../hooks/usePreloader"
+import { WalletConnectButton } from "../components/ConnectWallet"
 
 const getAddressArray = async () => {
     const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
@@ -85,7 +87,7 @@ const Deposits = () => {
 
     const dropdownOptions: string[] = [`weeks`, `months`, `years`];
     const { chain } = useNetwork();
-    const { address } = useAccount();
+    const { address, isConnected, isConnecting } = useAccount();
     // console.log(address);
     // console.log(typeof address);
     const cID = Number(chain?.id);
@@ -361,6 +363,27 @@ const Deposits = () => {
         const balSuf = (new BigNumber(balance).gte(value)) ? true : false;
 
         setIsBalanceSufficient(balSuf);
+    }
+
+    // Define your text conditionally
+    let loadingText = 'Fetching data . . .';
+    if (!isConnected) loadingText = "Please connect your wallet!"
+    if (isConnecting) loadingText = "Connecting to your wallet. Please wait!"
+
+    const checks = useCallback(async () => {
+        // Perform your checks here. For example:
+        const loaded = isConnected && supportedAssets ? true : false;
+        return loaded;
+    }, [address, isConnected]);
+
+    // Use the usePreloader hook, passing in the checks and the custom text
+    const { loading } = usePreloader({ checks, text: loadingText });
+
+    // Conditionally render the Preloader or your actual content based on the loading state
+    if (loading) {
+        return <Preloader text={loadingText} children={
+            <WalletConnectButton/>
+        }/>;
     }
 
     return (

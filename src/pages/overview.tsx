@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
 import { Link } from "react-router-dom";
@@ -6,6 +6,8 @@ import { getDepositIds, getProgressPercentage, getUserDetails } from '../hooks/g
 import { useAccount } from 'wagmi'
 import { useDateFromTimestamp } from "../hooks/getDuration";
 import ProgressBar from "../components/ProgressBar";
+import usePreloader, { Preloader } from "../hooks/usePreloader";
+import { WalletConnectButton } from "../components/ConnectWallet";
 
 interface ICofferCityDeposits {
     owner: string;
@@ -31,7 +33,7 @@ const OverView = () => {
     const [userDetails, setUserDetails] = useState<any | {}>({});
     const [userDeposits, setUserDeposits] = useState<ICofferCityDepositsWithID[]>([]);
     const [progressArray, setProgressArray] = useState<number[]>([]);
-    const { address } = useAccount();
+    const { address, isConnected, isConnecting } = useAccount();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -93,6 +95,27 @@ const OverView = () => {
 
     // console.log(userDetails);
     // console.log(userDeposits);
+
+    // Define your text conditionally
+    let loadingText = 'Fetching data . . .';
+    if (!isConnected) loadingText = "Please connect your wallet!"
+    if (isConnecting) loadingText = "Connecting to your wallet. Please wait!"
+
+    const checks = useCallback(async () => {
+        // Perform your checks here. For example:
+        const loaded = isConnected && userDeposits ? true : false;
+        return loaded;
+    }, [address, isConnected]);
+
+    // Use the usePreloader hook, passing in the checks and the custom text
+    const { loading } = usePreloader({ checks, text: loadingText });
+
+    // Conditionally render the Preloader or your actual content based on the loading state
+    if (loading) {
+        return <Preloader text={loadingText} children={
+            <WalletConnectButton />
+        } />;
+    };
 
     return (
         <React.Fragment>

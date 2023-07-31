@@ -24,7 +24,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0 }) => {
                 className="h-full bg-green-600/80"
             />
             <div className="m-2 text-xs text-slate-600">
-                {percentage.toFixed(4)} %
+                {percentage.toFixed(2)} %
             </div>
         </div>
     );

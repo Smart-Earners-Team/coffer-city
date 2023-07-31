@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
 import { BsShieldFillCheck, BsShieldFillExclamation } from 'react-icons/bs'
@@ -6,11 +6,13 @@ import { FaChartLine, FaChartPie, FaEye, FaEyeSlash, FaGift, FaPlusCircle } from
 import { Link } from "react-router-dom"
 import { getUserDetails } from "../hooks/getUserDetails"
 import { useAccount } from "wagmi"
+import usePreloader, { Preloader } from "../hooks/usePreloader"
+import { WalletConnectButton } from "../components/ConnectWallet"
 
 const Dashboard = () => {
     const [ isVisible, setIsVisible ] = useState<boolean>(false);
     const [isActive, setIsActive] = useState<boolean>(true);
-    const { address } = useAccount();
+    const { address, isConnected, isConnecting } = useAccount();
 
     const getActivityStatus = async () => {
         const data = await getUserDetails(String(address));
@@ -29,6 +31,27 @@ const Dashboard = () => {
     const handleValueVisibility = () => {
         setIsVisible(!isVisible);
     }
+
+    // Define your text conditionally
+    let loadingText = 'Fetching data . . .';
+    if (!isConnected) loadingText = "Please connect your wallet!"
+    if (isConnecting) loadingText = "Connecting to your wallet. Please wait!"
+
+    const checks = useCallback(async () => {
+        // Perform your checks here. For example:
+        const loaded = isConnected ? true : false;
+        return loaded;
+    }, [address, isConnected]);
+
+    // Use the usePreloader hook, passing in the checks and the custom text
+    const { loading } = usePreloader({ checks, text: loadingText });
+
+    // Conditionally render the Preloader or your actual content based on the loading state
+    if (loading) {
+        return <Preloader text={loadingText} children={
+            <WalletConnectButton />
+        } />;
+    };
     
     return (
         <React.Fragment>

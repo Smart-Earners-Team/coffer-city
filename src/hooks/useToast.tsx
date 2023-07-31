@@ -44,7 +44,7 @@ export const Toast: React.FC<ToastProps> = ({ isActive, title, subtitle, icon, h
 
     return (
         <div className="overflow-hidden">
-            <animated.div style={styles} className="absolute top-6 right-6 rounded bg-white p-5 shadow-md">
+            <animated.div style={styles} className="absolute top-6 right-6 origin-left rounded bg-white p-5 shadow-md">
                 <div className="flex items-center">
                     <div className="flex items-center justify-center h-9 w-9 bg-blue-900 text-white rounded-full">
                         {icon}

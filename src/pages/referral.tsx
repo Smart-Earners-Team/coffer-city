@@ -88,21 +88,28 @@ const Referral = () => {
                                     <FaCopy className='text-lg'/>
                                     <small className="whitespace-nowrap">Copy Link</small>
                                 </button>
+                                <Toast
+                                    isActive={isActive}
+                                    title="Success"
+                                    subtitle="Referral link copied!"
+                                    icon={<FaCheckCircle className='text-xl' />}
+                                    hide={hide}
+                                />
                             </div>
                             <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                                <Link to='' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                <Link to='admin@coffercity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
                                     <div className="text-center flex gap-1 align-middle justify-center">
                                         <FaEnvelope className='text-lg'/>
                                         <span className="">Email</span>
                                     </div>
                                 </Link>
-                                <Link to='' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                <Link to='https://linkedin.com/in/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
                                     <div className="text-center flex gap-1 align-middle justify-center">
                                         <FaLinkedin className='text-lg' />
                                         <span className="">LinkedIn</span>
                                     </div>
                                 </Link>
-                                <Link to='' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                <Link to='https://twitter.com/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
                                     <div className="text-center flex gap-1 align-middle justify-center">
                                         <FaTwitter className='text-lg' />
                                         <span className="">Twitter</span>
@@ -209,17 +216,7 @@ const Referral = () => {
                             )}
                         </div>
                     </div>
-
-                    <div className="overflow-hidden">
-                        <Toast
-                            isActive={isActive}
-                            title="Success"
-                            subtitle="Referral link copied!"
-                            icon={<FaCheckCircle className='text-xl'/>}
-                            hide={hide}
-                        />
-                    </div>
-
+                    
                 </div>
             </Layout>
         </React.Fragment>
