@@ -135,3 +135,11 @@ export const getProgressPercentage = (startTime: number, duration: number) => {
     const progressPercentage: number = (elapsedTime / (duration * 1000)) * 100;
     return Math.min(progressPercentage, 100);
 }
+
+export const getDebtWeeks = async (depositId: number) => {
+    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+
+    const debtWeeks = ethers.toNumber(await contract?.getDebtWeeks(depositId));
+    // console.log(debtWeeks);
+    return debtWeeks;
+}
