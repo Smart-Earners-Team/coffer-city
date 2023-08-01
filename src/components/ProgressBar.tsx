@@ -16,7 +16,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0 }) => {
     });
 
     return (
-        <div className="w-full rounded-l-xl rounded-r-xl h-6 bg-slate-50/70 flex items-center justify-start overflow-hidden">
+        <div className="w-full rounded-l-xl rounded-r-xl h-6 bg-slate-50/80 flex items-center justify-start overflow-hidden">
             <animated.div
                 style={{
                     width,

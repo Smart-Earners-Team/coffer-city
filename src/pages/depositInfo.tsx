@@ -1,13 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../components/wrap'
 import { Helmet } from 'react-helmet'
-import { useParams } from 'react-router-dom'
-import { getDepositDetails } from '../hooks/getUserDetails'
-import { useAccount } from 'wagmi'
+import { Link, useParams } from 'react-router-dom'
+import { getDepositDetails, getProgressPercentage } from '../hooks/getUserDetails'
+import { useAccount, useNetwork } from 'wagmi'
 import { getTokenData } from './deposit'
-import usePreloader, { Preloader } from '../hooks/usePreloader'
-import { WalletConnectButton } from '../components/ConnectWallet'
 import { useDateFromTimestamp } from '../hooks/getDuration'
+import { getAmountForAssets } from '../hooks/getAmountForAssets'
+import BigNumber from 'bignumber.js'
+import ProgressBar from '../components/ProgressBar'
 
 interface DepositDetails {
     owner: string;
@@ -29,10 +30,13 @@ interface SP {
 const DepositInfo = () => {
 
     const { depositId } = useParams();
-    const { address, isConnected, isConnecting } = useAccount();
+    const { address } = useAccount();
+    const { chain } = useNetwork();
+    const blockExplorerUrl = chain?.blockExplorers?.default.url;
     
     const [ depositDetails, setDepositDetails ] = useState<DepositDetails | null>(null);
     const [assetDetails, setAssetDetails] = useState<SP | null>(null);
+    const [assetBalance, setAssetBalance] = useState<number>(0);
 
     useEffect(() => {
         const fetchPageData = async () => {
@@ -41,35 +45,18 @@ const DepositInfo = () => {
             setDepositDetails(res);
             const tk = await getTokenData(res.asset);
             // console.log(tk);
+            const { assetDecimals } = await getAmountForAssets(tk.address);
+            const assetBal = new BigNumber(res.balance).div(new BigNumber(10).pow(Number(assetDecimals))).toNumber();
+            // console.log(assetBal);
             setAssetDetails(tk);
+            setAssetBalance(assetBal);
         }
 
         fetchPageData();
     }, [address]);
 
-    console.log(depositDetails);
+    // console.log(depositDetails);
     // console.log(assetDetails);
-
-    // Define your text conditionally
-    let loadingText = 'Fetching data . . .';
-    if (!isConnected) loadingText = "Please connect your wallet!"
-    if (isConnecting) loadingText = "Connecting to your wallet. Please wait!"
-
-    const checks = useCallback(async () => {
-        // Perform your checks here. For example:
-        const loaded = isConnected ? true : false;
-        return loaded;
-    }, [address, isConnected]);
-
-    // Use the usePreloader hook, passing in the checks and the custom text
-    const { loading } = usePreloader({ checks, text: loadingText });
-
-    // Conditionally render the Preloader or your actual content based on the loading state
-    if (loading) {
-        return <Preloader text={loadingText} children={
-            <WalletConnectButton />
-        } />;
-    };
 
     return (
         <React.Fragment>
@@ -86,7 +73,7 @@ const DepositInfo = () => {
                             </div>
                             <div className='my-auto'>
                                 <div className='font-extrabold text-lg'>Unique Savings ID</div>
-                                <div>{depositId}</div>
+                                <div className='font-semibold text-[17px]'>{depositId}</div>
                             </div>
                         </div>
                         <div className='p-3 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex'>
@@ -103,8 +90,8 @@ const DepositInfo = () => {
                                 <svg fill='#ff7700' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M232 120C232 106.7 242.7 96 256 96C269.3 96 280 106.7 280 120V243.2L365.3 300C376.3 307.4 379.3 322.3 371.1 333.3C364.6 344.3 349.7 347.3 338.7 339.1L242.7 275.1C236 271.5 232 264 232 255.1L232 120zM256 0C397.4 0 512 114.6 512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0zM48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48C141.1 48 48 141.1 48 256z"/></svg>
                             </div>
                             <div className='my-auto'>
-                                <div className='font-extrabold text-lg'>Start Time</div>
-                                <div>{useDateFromTimestamp(Number(depositDetails?.startTime))}</div>
+                                <div className='font-extrabold text-lg'>Duration</div>
+                                <div>{useDateFromTimestamp(Number(depositDetails?.startTime))}&nbsp; to &nbsp;{useDateFromTimestamp(Number(Number(depositDetails?.startTime) + Number(depositDetails?.duration)))}</div>
                             </div>
                         </div>
                         <div className='p-3 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex'>
@@ -113,10 +100,44 @@ const DepositInfo = () => {
                             </div>
                             <div className='my-auto'>
                                 <div className='font-extrabold text-lg'>Balance</div>
-                                <div>{Number(depositDetails?.balance)}</div>
+                                <div>{assetBalance} {assetDetails?.symbol}</div>
                             </div>
                         </div>
                     </div>
+
+                    <Link target='_blank' to={`${blockExplorerUrl}/address/${address}`} className='p-3 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex'>
+                        <div className='text-3xl my-auto rounded-full bg-slate-50 p-5 w-24 h-24'>
+                            <svg fill='#ffd700' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0S96 57.3 96 128s57.3 128 128 128zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
+                        </div>
+                        <div className='my-auto'>
+                            <div className='font-extrabold text-lg'>Owner</div>
+                            <div>{depositDetails?.owner}</div>
+                        </div>
+                    </Link>
+
+                    {
+                        depositDetails && (
+                            <div className='grid gap-2'>
+                                <div className='text-xl font-bold'>
+                                    Progress
+                                </div>
+                                <ProgressBar percentage={getProgressPercentage(Number(depositDetails?.startTime), Number(depositDetails?.duration))} />
+                            </div>
+                        )
+                    }
+
+                    {
+                        String(address) === String(depositDetails?.owner) && (
+                            <div className='mx-auto'>
+                                <button className='px-3 py-2 rounded-lg border'>
+                                    {
+                                        getProgressPercentage(Number(depositDetails?.startTime), Number(depositDetails?.duration)) < 100 ? "Top-up" : "Withdraw"
+                                    }
+                                </button>
+                            </div>
+                        )
+                    }
+
                 </div>
             </Layout>
         </React.Fragment>

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
-import Layout, { useWagmiDetails } from "../components/wrap"
+import Layout from "../components/wrap"
 import { Link } from "react-router-dom"
 import { FaCheckCircle, FaCopy, FaEnvelope, FaLinkedin, FaTwitter } from "react-icons/fa"
 import piggyBank from './../assets/svgs/piggybank.svg'
@@ -9,6 +9,9 @@ import { useContractInitializer } from "../hooks/useEthers"
 import { addresses } from "../hooks/addresses"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
 import { Toast, useToast } from "../hooks/useToast"
+import usePreloader, { Preloader } from "../hooks/usePreloader"
+import { WalletConnectButton } from "../components/ConnectWallet"
+import { useAccount } from "wagmi"
 
 export function copyToClipboard(value: string) {
     try {
@@ -31,7 +34,8 @@ const Referral = () => {
 
     const { isActive, show, hide } = useToast();
 
-    const { address } = useWagmiDetails();
+    // const { address } = useWagmiDetails();
+    const { address, isConnected, isConnecting } = useAccount();
 
     const [activeTab, setActiveTab] = useState("activeRewards");
 
@@ -61,9 +65,30 @@ const Referral = () => {
         }
 
         fetchData();
-    }, [])
+    }, []);
 
-    const ownerReferral = `coffer.city/rewards/${address}`
+    const ownerReferral = `coffer.city/rewards/${address}`;
+
+    // Define your text conditionally
+    let loadingText = 'Fetching data . . .';
+    if (!isConnected) loadingText = "Please connect your wallet!"
+    if (isConnecting) loadingText = "Connecting to your wallet. Please wait!"
+
+    const checks = useCallback(async () => {
+        // Perform your checks here. For example:
+        const loaded = isConnected ? true : false;
+        return loaded;
+    }, [address, isConnected]);
+
+    // Use the usePreloader hook, passing in the checks and the custom text
+    const { loading } = usePreloader({ checks, text: loadingText });
+
+    // Conditionally render the Preloader or your actual content based on the loading state
+    if (loading) {
+        return <Preloader text={loadingText} children={
+            <WalletConnectButton />
+        } />;
+    };
 
     return (
         <React.Fragment>
@@ -97,19 +122,19 @@ const Referral = () => {
                                 />
                             </div>
                             <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                                <Link to='admin@coffercity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                <Link target="_blank" to='admin@coffercity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
                                     <div className="text-center flex gap-1 align-middle justify-center">
                                         <FaEnvelope className='text-lg'/>
                                         <span className="">Email</span>
                                     </div>
                                 </Link>
-                                <Link to='https://linkedin.com/in/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                <Link target="_blank" to='https://linkedin.com/in/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
                                     <div className="text-center flex gap-1 align-middle justify-center">
                                         <FaLinkedin className='text-lg' />
                                         <span className="">LinkedIn</span>
                                     </div>
                                 </Link>
-                                <Link to='https://twitter.com/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                <Link target="_blank" to='https://twitter.com/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
                                     <div className="text-center flex gap-1 align-middle justify-center">
                                         <FaTwitter className='text-lg' />
                                         <span className="">Twitter</span>
