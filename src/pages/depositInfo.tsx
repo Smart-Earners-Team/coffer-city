@@ -105,7 +105,7 @@ const DepositInfo = () => {
                         </div>
                     </div>
 
-                    <Link target='_blank' to={`${blockExplorerUrl}/address/${address}`} className='p-3 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex'>
+                    <Link target='_blank' to={`${blockExplorerUrl}/address/${depositDetails?.owner}`} className='p-3 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex'>
                         <div className='text-3xl my-auto rounded-full bg-slate-50 p-5 w-24 h-24'>
                             <svg fill='#ffd700' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0S96 57.3 96 128s57.3 128 128 128zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
                         </div>
