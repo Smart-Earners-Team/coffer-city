@@ -6,7 +6,7 @@ interface ProgressBarProps {
     decimalPlaces?: number;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0, decimalPlaces = 4 }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0, decimalPlaces = 3 }) => {
     const { width } = useSpring({
         from: { width: '0%' },
         to: { width: `${percentage.toString()}%` },
@@ -26,8 +26,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0, decimalPlaces
                     className="h-full bg-green-600/80"
                 />
                 <div
-                    className="m-2 text-xs text-slate-600 absolute"
-                    style={{ left: `${percentage + 0.5}%` }}
+                    className="w-[99%] mx-auto text-center text-xs text-slate-700 absolute"
                 >
                     {percentage.toFixed(decimalPlaces)} %
                 </div>

@@ -10,9 +10,12 @@ import { getAmountForAssets } from '../hooks/getAmountForAssets'
 import BigNumber from 'bignumber.js'
 import ProgressBar from '../components/ProgressBar'
 import { shortenAddress } from '../hooks/shortenAddress'
-import { useContractInitializer } from '../hooks/useEthers'
 import { addresses } from '../hooks/addresses'
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
+import ERC20ABI from './../utils/ABIs/ERC20ABI.json'
+import { useEthersSigner } from '../hooks/wagmiSigner'
+import { ethers } from 'ethers'
+import { useContractInitializer } from '../hooks/useEthers'
 
 interface DepositDetails {
     owner: string;
@@ -36,6 +39,8 @@ const DepositInfo = () => {
     const { depositId } = useParams();
     const { address } = useAccount();
     const { chain } = useNetwork();
+    const cID = Number(chain?.id);
+    const signer = useEthersSigner({ chainId: cID });
     
     const blockExplorerUrl = chain?.blockExplorers?.default.url;
     
@@ -45,6 +50,8 @@ const DepositInfo = () => {
     const [amountWeekly, setAmountWeekly] = useState<number>(0);
     const [outstanding, setOutstanding] = useState<number>(0);
     const [progress, setProgress] = useState<number>(0);
+    const [withdrawn, setWithdrawn] = useState<boolean>(false);
+    const [isApproved, setIsApproved] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchPageData = async () => {
@@ -61,17 +68,22 @@ const DepositInfo = () => {
             // console.log(debtWeeks);
 
             const assetBal = new BigNumber(res.balance).div(new BigNumber(10).pow(Number(assetDecimals))).toNumber();
+            // console.log(assetBal);
             
             const amtWeek = new BigNumber(res.amountPerWeek).div(new BigNumber(10).pow(Number(assetDecimals))).toNumber();
-            // console.log(assetBal);
+            // console.log(amtWeek);
 
             const outS = amtWeek * Number(debtWeeks);
             // console.log(outS);
+
+            const apprStatus = await checkApproval(amtWeek, tk.address, res.owner);
+            // console.log(apprStatus);
 
             setAssetDetails(tk);
             setAssetBalance(assetBal);
             setAmountWeekly(amtWeek);
             setOutstanding(outS);
+            setIsApproved(apprStatus);
         }
 
         fetchPageData();
@@ -96,12 +108,46 @@ const DepositInfo = () => {
     // console.log(assetDetails);
 
     const handleTopUp = async () => {
-        const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
 
         const res = await contract?.topup(Number(depositId));
         await res.wait();
         if (res) window.location.reload();
     };
+
+    const handleWithdraw = async () => {
+        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+
+        const res = await contract?.withdraw(Number(depositId));
+        await res.wait();
+
+        res ? setWithdrawn(true) : setWithdrawn(false);
+    };
+
+    const handleApprove = async () => {
+        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+
+        const approve = await contract?.approve(addresses.CofferCityVault[97], ethers.MaxUint256);
+        await approve.wait();
+        // await checkApproval();
+
+        approve ? setIsApproved(true) : setIsApproved(false);
+    };
+
+    const checkApproval = async (amount: number, CA: string, ownerAddress: string) => {
+        const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: CA, contractABI: ERC20ABI });
+
+        const allowance: number = await contract?.allowance(ownerAddress, addresses.CofferCityVault[97]);
+
+        const assetDecimals: number = await contract?.decimals();
+        // console.log(assetDecimals);
+
+        const value = new BigNumber(Number(amount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
+
+        const status = (new BigNumber(allowance).gte(value)) ? true : false;
+
+        return status;
+    }
 
     return (
         <React.Fragment>
@@ -186,10 +232,14 @@ const DepositInfo = () => {
 
                     {
                         String(address) === String(depositDetails?.owner) && (
-                            <div className='mx-auto'>
+                            <div className='mx-auto flex gap-2'>
                                 <button 
-                                onClick={async()=>{
-                                    if (outstanding > 0) await handleTopUp();
+                                onClick={ async () => {
+
+                                    if (outstanding > 0 && progress < 100) await handleTopUp();
+
+                                    if (withdrawn == false && outstanding == 0 && progress == 100 ) await handleWithdraw();
+
                                 }} 
                                 disabled={(progress < 100) && (outstanding === 0)} 
                                     className={`px-3 py-2 rounded-lg border hover:bg-green-700 hover:text-slate-50 duration-300 text-xs font-bold text-slate-500 bg-green-700/5 ${(progress < 100) && (outstanding === 0) && 'opacity-30 hover:bg-green-700/5 hover:text-slate-500'}`}>
@@ -197,6 +247,15 @@ const DepositInfo = () => {
                                         progress < 100 ? "Top-up" : "Withdraw"
                                     }
                                 </button>
+                                {
+                                    (!isApproved && outstanding > 0) && (
+                                        <button
+                                            onClick={ async () => await handleApprove() }
+                                            className={`px-3 py-2 rounded-lg border hover:bg-green-700 hover:text-slate-50 duration-300 text-xs font-bold text-slate-500 bg-green-700/5`}>
+                                            Approve
+                                        </button>
+                                    )
+                                }
                             </div>
                         )
                     }
