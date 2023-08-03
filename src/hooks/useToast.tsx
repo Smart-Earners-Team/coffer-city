@@ -1,37 +1,29 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useSpring, animated } from "react-spring";
 
-// useToast hook
-export const useToast = (initialIsActive = false) => {
-    const [isActive, setIsActive] = useState(initialIsActive);
-
-    const show = useCallback((duration = 3000) => {
-        setIsActive(true);
-        const timerId = window.setTimeout(() => setIsActive(false), duration);
-        return () => window.clearTimeout(timerId); // cleanup to prevent memory leak
-    }, []);
-
-    const hide = useCallback(() => setIsActive(false), []);
-
-    return { isActive, show, hide };
-};
-
-// Toast Component
 interface ToastProps {
-    isActive: boolean;
-    title?: string;
-    subtitle: string;
-    icon?: React.ReactNode;
-    hide: () => void; // New hide prop
+    title: string,
+    subtitle: string,
+    icon: React.ReactNode
 }
 
-export const Toast: React.FC<ToastProps> = ({ isActive, title, subtitle, icon, hide }) => {
+export function useToastBox({ title, subtitle, icon }: ToastProps) {
+    const [isActive, setIsActive] = useState(false);
+
     const styles = useSpring({
         transform: isActive
             ? "translate3d(0%, 0, 0) scale(1)"  // fully visible and at normal size
             : "translate3d(100%, 0, 0) scale(0)",  // fully off screen and scale down to 0
         config: { tension: 150, friction: 30 },
     });
+
+    const hide = useCallback(() => setIsActive(false), []);
+
+    const show = useCallback((duration = 3000) => {
+        setIsActive(true);
+        const timerId = window.setTimeout(hide, duration);
+        return () => window.clearTimeout(timerId); // cleanup to prevent memory leak
+    }, [hide]);
 
     useEffect(() => {
         if (isActive) {
@@ -40,13 +32,11 @@ export const Toast: React.FC<ToastProps> = ({ isActive, title, subtitle, icon, h
         }
     }, [isActive, hide]); // Add hide to the dependency array
 
-    if (!isActive) return null;
-
-    return (
+    const ToastComponent = isActive && (
         <div className="overflow-hidden">
-            <animated.div style={styles} className="absolute top-6 right-6 origin-top-left rounded bg-white p-5 shadow-md">
+            <animated.div style={styles} className="fixed top-6 right-6 origin-top-right rounded bg-white p-5 shadow-md">
                 <div className="flex items-center">
-                    <div className="flex items-center justify-center h-9 w-9 bg-blue-900 text-white rounded-full">
+                    <div className="flex items-center justify-center">
                         {icon}
                     </div>
                     <div className="ml-5">
@@ -58,4 +48,6 @@ export const Toast: React.FC<ToastProps> = ({ isActive, title, subtitle, icon, h
             </animated.div>
         </div>
     );
-};
+
+    return [ToastComponent, show, hide] as const;
+}

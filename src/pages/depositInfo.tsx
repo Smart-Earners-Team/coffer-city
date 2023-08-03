@@ -84,6 +84,7 @@ const DepositInfo = () => {
             setAmountWeekly(amtWeek);
             setOutstanding(outS);
             setIsApproved(apprStatus);
+            setWithdrawn(res.withdrawn);
         }
 
         fetchPageData();
@@ -108,30 +109,32 @@ const DepositInfo = () => {
     // console.log(assetDetails);
 
     const handleTopUp = async () => {
+        setOutstanding(0);
         const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
 
         const res = await contract?.topup(Number(depositId));
         await res.wait();
+
         if (res) window.location.reload();
     };
 
     const handleWithdraw = async () => {
+        setWithdrawn(true);
         const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
 
         const res = await contract?.withdraw(Number(depositId));
         await res.wait();
 
-        res ? setWithdrawn(true) : setWithdrawn(false);
+        if (res) window.location.reload();
     };
 
     const handleApprove = async () => {
-        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+        const contract = new ethers.Contract(String(assetDetails?.address), ERC20ABI, signer);
 
         const approve = await contract?.approve(addresses.CofferCityVault[97], ethers.MaxUint256);
         await approve.wait();
-        // await checkApproval();
 
-        approve ? setIsApproved(true) : setIsApproved(false);
+        await checkApproval(Number(amountWeekly), String(assetDetails?.address), String(depositDetails?.owner));
     };
 
     const checkApproval = async (amount: number, CA: string, ownerAddress: string) => {
@@ -146,8 +149,10 @@ const DepositInfo = () => {
 
         const status = (new BigNumber(allowance).gte(value)) ? true : false;
 
+        setIsApproved(status);
+
         return status;
-    }
+    };
 
     return (
         <React.Fragment>
@@ -156,6 +161,12 @@ const DepositInfo = () => {
             </Helmet>
             <Layout navbar footer>
                 <div className="grid gap-10 px-10 md:px-32 pt-[38%] md:pt-[13%] h-[120%] md:h-[130%] w-full">
+
+                    {
+                        withdrawn && (
+                            <small className='mx-auto font-semibold'>This deposit has been withdrawn!</small>
+                        )
+                    }
 
                     <div className='grid gap-5 grid-cols-1 md:grid-cols-2 w-full'>
                         <div className='p-2 rounded-l-full rounded-r-full bg-slate-200 gap-3 flex'>
@@ -241,8 +252,8 @@ const DepositInfo = () => {
                                     if (withdrawn == false && outstanding == 0 && progress == 100 ) await handleWithdraw();
 
                                 }} 
-                                disabled={(progress < 100) && (outstanding === 0)} 
-                                    className={`px-3 py-2 rounded-lg border hover:bg-green-700 hover:text-slate-50 duration-300 text-xs font-bold text-slate-500 bg-green-700/5 ${(progress < 100) && (outstanding === 0) && 'opacity-30 hover:bg-green-700/5 hover:text-slate-500'}`}>
+                                disabled={(progress < 100 && outstanding === 0 || !isApproved && outstanding > 0 || withdrawn == true)} 
+                                    className={`px-3 py-2 rounded-lg border hover:bg-green-700 hover:text-slate-50 duration-300 text-xs font-bold text-slate-500 bg-green-700/5 ${(progress < 100 && outstanding === 0 || !isApproved && outstanding > 0) && 'opacity-30 hover:bg-green-700/5 hover:text-slate-500'}`}>
                                     {
                                         progress < 100 ? "Top-up" : "Withdraw"
                                     }

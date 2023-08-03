@@ -2,16 +2,18 @@ import React, { useCallback, useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
 import { Link } from "react-router-dom"
-import { FaCheckCircle, FaCopy, FaEnvelope, FaLinkedin, FaTwitter } from "react-icons/fa"
+import { FaCheckCircle, FaCopy, FaReddit, FaTelegram, FaWhatsapp } from "react-icons/fa"
+import { BiLogoGmail } from "react-icons/bi"
 import piggyBank from './../assets/svgs/piggybank.svg'
 import cofferchest from './../assets/svgs/coffer-chest.svg'
 import { useContractInitializer } from "../hooks/useEthers"
 import { addresses } from "../hooks/addresses"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
-import { Toast, useToast } from "../hooks/useToast"
 import usePreloader, { Preloader } from "../hooks/usePreloader"
 import { WalletConnectButton } from "../components/ConnectWallet"
 import { useAccount } from "wagmi"
+import { useDialogBox } from "../hooks/useDialogBox"
+import { useToastBox } from "../hooks/useToast"
 
 export function copyToClipboard(value: string) {
     try {
@@ -32,10 +34,44 @@ const getUserTeamData = async (address: string) => {
 
 const Referral = () => {
 
-    const { isActive, show, hide } = useToast();
+    const [Toast, showSuccess] = useToastBox({
+        title: 'Success!',
+        subtitle: 'Referral link copied successfully!',
+        icon: <FaCheckCircle className='text-3xl text-green-800'/>, // You can replace this with any React node
+    });
 
     // const { address } = useWagmiDetails();
     const { address, isConnected, isConnecting } = useAccount();
+
+    const ownerReferral = `coffer.city/rewards/${address}`;
+
+    const [ShareDialog, toggleShareDialog] = useDialogBox({
+        title: "Share",
+        subtitle: "",
+        children: (
+            <div className="w-full my-5">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-5 md:gap-10">
+                    <Link target="_blank" to={`mailto:?subject=Coffer%20City%3A%20Saving%20Made%20Simple%2C%20Smart%20and%20Secure&body=https://${ownerReferral}`} className="grid gap-2">
+                        <BiLogoGmail className='mx-auto rounded-full bg-slate-100 hover:text-red-600 text-red-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
+                        <div className="text-center text-xs">Email</div>
+                    </Link>
+                    <Link target="_blank" to={`https://api.whatsapp.com/send?text=https://${ownerReferral}`} className="grid gap-2">
+                        <FaWhatsapp className='mx-auto rounded-full bg-slate-100 hover:text-green-600 text-green-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
+                        <div className="text-center text-xs">Whatsapp</div>
+                    </Link>
+                    <Link target="_blank" to={`https://www.reddit.com/submit?url=https://${ownerReferral}&title=Coffer%20City%3A%20Saving%20Made%20Simple%2C%20Smart%20and%20Secure`} className="grid gap-2">
+                        <FaReddit className='mx-auto rounded-full bg-slate-100 hover:text-orange-600 text-orange-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
+                        <div className="text-center text-xs">Reddit</div>
+                    </Link>
+                    <Link target="_blank" to={`https://t.me/share/url?text=https://${ownerReferral}`} className="grid gap-2">
+                        <FaTelegram className='mx-auto rounded-full bg-slate-100 hover:text-blue-600 text-blue-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
+                        <div className="text-center text-xs">Telegram</div>
+                    </Link>
+                </div>
+                <div></div>
+            </div>
+        ),
+    });
 
     const [activeTab, setActiveTab] = useState("activeRewards");
 
@@ -66,8 +102,6 @@ const Referral = () => {
 
         fetchData();
     }, []);
-
-    const ownerReferral = `coffer.city/rewards/${address}`;
 
     // Define your text conditionally
     let loadingText = 'Fetching data . . .';
@@ -103,43 +137,38 @@ const Referral = () => {
                         <div className="">
                             Invite a new user to sign up using your link and earn unique rewards - per referral.
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1 px-5 flex gap-3 justify-between">
                                 <div className="opacity-90 text-xs md:text-sm select-none overflow-hidden overflow-ellipsis whitespace-nowrap my-auto">{ownerReferral}</div>
                                 <button onClick={() => {
                                     copyToClipboard(`https://${ownerReferral}`);
-                                    show(3000)
+                                    showSuccess(3000);
                                 }} className="float-right flex w-fit gap-1">
                                     <FaCopy className='text-lg'/>
                                     <small className="whitespace-nowrap">Copy Link</small>
                                 </button>
-                                <Toast
-                                    isActive={isActive}
-                                    title="Success"
-                                    subtitle="Referral link copied!"
-                                    icon={<FaCheckCircle className='text-xl' />}
-                                    hide={hide}
-                                />
+                                {Toast}
                             </div>
-                            <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                                <Link target="_blank" to='admin@coffercity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
-                                    <div className="text-center flex gap-1 align-middle justify-center">
-                                        <FaEnvelope className='text-lg'/>
-                                        <span className="">Email</span>
+                            <div className="grid justify-between grid-cols-3 md:grid-cols-3 gap-2">
+                                <Link target="_blank" to={`https://twitter.com/intent/tweet?text=Coffer%20City%20is%20your%20one-stop%20digital%20Piggy%20Bank%21%20Save%20crypto%20for%20a%20fixed%20duration%20with%20a%20specified%20weekly%20amount%2C%20and%20watch%20your%20savings%20skyrocket%21%0A%0Ahttps://${ownerReferral}%0A%0A%23DeFiSavings%20%23DecentralizedBanking%20%23BlockchainBanking%20%23CofferCity`} className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                    <div className="text-center justify-center flex gap-1 px-2">
+                                        <img className="w-5" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgRnJlZSA2LjIuMSBieSBAZm9udGF3ZXNvbWUgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbSBMaWNlbnNlIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20vbGljZW5zZS9mcmVlIChJY29uczogQ0MgQlkgNC4wLCBGb250czogU0lMIE9GTCAxLjEsIENvZGU6IE1JVCBMaWNlbnNlKSBDb3B5cmlnaHQgMjAyMiBGb250aWNvbnMsIEluYy4gLS0+PHBhdGggZD0iTTQ1OS4zNyAxNTEuNzE2Yy4zMjUgNC41NDguMzI1IDkuMDk3LjMyNSAxMy42NDUgMCAxMzguNzItMTA1LjU4MyAyOTguNTU4LTI5OC41NTggMjk4LjU1OC01OS40NTIgMC0xMTQuNjgtMTcuMjE5LTE2MS4xMzctNDcuMTA2IDguNDQ3Ljk3NCAxNi41NjggMS4yOTkgMjUuMzQgMS4yOTkgNDkuMDU1IDAgOTQuMjEzLTE2LjU2OCAxMzAuMjc0LTQ0LjgzMi00Ni4xMzItLjk3NS04NC43OTItMzEuMTg4LTk4LjExMi03Mi43NzIgNi40OTguOTc0IDEyLjk5NSAxLjYyNCAxOS44MTggMS42MjQgOS40MjEgMCAxOC44NDMtMS4zIDI3LjYxNC0zLjU3My00OC4wODEtOS43NDctODQuMTQzLTUxLjk4LTg0LjE0My0xMDIuOTg1di0xLjI5OWMxMy45NjkgNy43OTcgMzAuMjE0IDEyLjY3IDQ3LjQzMSAxMy4zMTktMjguMjY0LTE4Ljg0My00Ni43ODEtNTEuMDA1LTQ2Ljc4MS04Ny4zOTEgMC0xOS40OTIgNS4xOTctMzcuMzYgMTQuMjk0LTUyLjk1NCA1MS42NTUgNjMuNjc1IDEyOS4zIDEwNS4yNTggMjE2LjM2NSAxMDkuODA3LTEuNjI0LTcuNzk3LTIuNTk5LTE1LjkxOC0yLjU5OS0yNC4wNCAwLTU3LjgyOCA0Ni43ODItMTA0LjkzNCAxMDQuOTM0LTEwNC45MzQgMzAuMjEzIDAgNTcuNTAyIDEyLjY3IDc2LjY3IDMzLjEzNyAyMy43MTUtNC41NDggNDYuNDU2LTEzLjMyIDY2LjU5OS0yNS4zNC03Ljc5OCAyNC4zNjYtMjQuMzY2IDQ0LjgzMy00Ni4xMzIgNTcuODI3IDIxLjExNy0yLjI3MyA0MS41ODQtOC4xMjIgNjAuNDI2LTE2LjI0My0xNC4yOTIgMjAuNzkxLTMyLjE2MSAzOS4zMDgtNTIuNjI4IDU0LjI1M3oiLz48L3N2Zz4="/>
+                                        <span className="my-auto text-xs">Twitter</span>
                                     </div>
                                 </Link>
-                                <Link target="_blank" to='https://linkedin.com/in/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
-                                    <div className="text-center flex gap-1 align-middle justify-center">
-                                        <FaLinkedin className='text-lg' />
-                                        <span className="">LinkedIn</span>
+                                <Link target="_blank" to={`https://www.facebook.com/sharer/sharer.php?t=&u=https://${ownerReferral}`} className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                    <div className="text-center justify-center flex gap-1 px-2">
+                                        <img className="w-5" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgRnJlZSA2LjIuMSBieSBAZm9udGF3ZXNvbWUgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbSBMaWNlbnNlIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20vbGljZW5zZS9mcmVlIChJY29uczogQ0MgQlkgNC4wLCBGb250czogU0lMIE9GTCAxLjEsIENvZGU6IE1JVCBMaWNlbnNlKSBDb3B5cmlnaHQgMjAyMiBGb250aWNvbnMsIEluYy4gLS0+PHBhdGggZD0iTTUwNCAyNTZDNTA0IDExOSAzOTMgOCAyNTYgOFM4IDExOSA4IDI1NmMwIDEyMy43OCA5MC42OSAyMjYuMzggMjA5LjI1IDI0NVYzMjcuNjloLTYzVjI1Nmg2M3YtNTQuNjRjMC02Mi4xNSAzNy05Ni40OCA5My42Ny05Ni40OCAyNy4xNCAwIDU1LjUyIDQuODQgNTUuNTIgNC44NHY2MWgtMzEuMjhjLTMwLjggMC00MC40MSAxOS4xMi00MC40MSAzOC43M1YyNTZoNjguNzhsLTExIDcxLjY5aC01Ny43OFY1MDFDNDEzLjMxIDQ4Mi4zOCA1MDQgMzc5Ljc4IDUwNCAyNTZ6Ii8+PC9zdmc+" />
+                                        <span className="my-auto text-xs">Facebook</span>
                                     </div>
                                 </Link>
-                                <Link target="_blank" to='https://twitter.com/CofferCity' className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
-                                    <div className="text-center flex gap-1 align-middle justify-center">
-                                        <FaTwitter className='text-lg' />
-                                        <span className="">Twitter</span>
+                                <button onClick={toggleShareDialog} className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                    <div className="text-center justify-center flex gap-1 px-2">
+                                        <img className="w-5" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48IS0tISBGb250IEF3ZXNvbWUgRnJlZSA2LjIuMSBieSBAZm9udGF3ZXNvbWUgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbSBMaWNlbnNlIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20vbGljZW5zZS9mcmVlIChJY29uczogQ0MgQlkgNC4wLCBGb250czogU0lMIE9GTCAxLjEsIENvZGU6IE1JVCBMaWNlbnNlKSBDb3B5cmlnaHQgMjAyMiBGb250aWNvbnMsIEluYy4gLS0+PHBhdGggZD0iTTM1MiAyMjRjNTMgMCA5Ni00MyA5Ni05NnMtNDMtOTYtOTYtOTZzLTk2IDQzLTk2IDk2YzAgNCAuMiA4IC43IDExLjlsLTk0LjEgNDdDMTQ1LjQgMTcwLjIgMTIxLjkgMTYwIDk2IDE2MGMtNTMgMC05NiA0My05NiA5NnM0MyA5NiA5NiA5NmMyNS45IDAgNDkuNC0xMC4yIDY2LjYtMjYuOWw5NC4xIDQ3Yy0uNSAzLjktLjcgNy44LS43IDExLjljMCA1MyA0MyA5NiA5NiA5NnM5Ni00MyA5Ni05NnMtNDMtOTYtOTYtOTZjLTI1LjkgMC00OS40IDEwLjItNjYuNiAyNi45bC05NC4xLTQ3Yy41LTMuOSAuNy03LjggLjctMTEuOXMtLjItOC0uNy0xMS45bDk0LjEtNDdDMzAyLjYgMjEzLjggMzI2LjEgMjI0IDM1MiAyMjR6Ii8+PC9zdmc+"/>
+                                        <span className="my-auto text-xs">Share</span>
                                     </div>
-                                </Link>
+                                </button>
+                                {ShareDialog}
                             </div>
                         </div>
 

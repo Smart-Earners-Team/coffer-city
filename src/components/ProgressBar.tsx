@@ -2,11 +2,11 @@ import React from 'react';
 import { animated, useSpring } from 'react-spring';
 
 interface ProgressBarProps {
-    percentage: number;
+    percentage: number | string;
     decimalPlaces?: number;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0, decimalPlaces = 3 }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0 , decimalPlaces = 3 }) => {
     const { width } = useSpring({
         from: { width: '0%' },
         to: { width: `${percentage.toString()}%` },
@@ -28,7 +28,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage = 0, decimalPlaces
                 <div
                     className="w-[99%] mx-auto text-center text-xs text-slate-700 absolute"
                 >
-                    {percentage.toFixed(decimalPlaces)} %
+                    {Number(percentage).toFixed(decimalPlaces)} %
                 </div>
             </div>
         </div>
