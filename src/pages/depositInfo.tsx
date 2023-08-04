@@ -164,7 +164,7 @@ const DepositInfo = () => {
 
                     {
                         withdrawn && (
-                            <small className='mx-auto font-semibold'>This deposit has been withdrawn!</small>
+                            <small className='mx-auto font-semibold text-lg'>This deposit has been withdrawn!</small>
                         )
                     }
 
@@ -253,7 +253,7 @@ const DepositInfo = () => {
 
                                 }} 
                                 disabled={(progress < 100 && outstanding === 0 || !isApproved && outstanding > 0 || withdrawn == true)} 
-                                    className={`px-3 py-2 rounded-lg border hover:bg-green-700 hover:text-slate-50 duration-300 text-xs font-bold text-slate-500 bg-green-700/5 ${(progress < 100 && outstanding === 0 || !isApproved && outstanding > 0) && 'opacity-30 hover:bg-green-700/5 hover:text-slate-500'}`}>
+                                    className={`px-3 py-2 rounded-lg border hover:bg-green-700 hover:text-slate-50 duration-300 text-xs font-bold text-slate-500 bg-green-700/5 ${(progress < 100 && outstanding === 0 || !isApproved && outstanding > 0 || withdrawn == true) && 'opacity-30 hover:bg-green-700/5 hover:text-slate-500'}`}>
                                     {
                                         progress < 100 ? "Top-up" : "Withdraw"
                                     }

@@ -1,6 +1,6 @@
 export const addresses = {
     CofferCityVault: {
         56: "",
-        97: "0x31B6f8664c341fA9A0Ff6FE25a70216E4f85Ef82",
+        97: "0x3c0Fa6A8E8852185720f12587cE4F840f37f14c2",
     },
 }

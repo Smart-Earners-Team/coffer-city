@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
 import { Link } from "react-router-dom"
-import { FaCheckCircle, FaCopy, FaReddit, FaTelegram, FaWhatsapp } from "react-icons/fa"
+import { FaCheckCircle, FaCopy, FaCloudDownloadAlt, FaReddit, FaTelegram, FaWhatsapp } from "react-icons/fa"
 import { BiLogoGmail } from "react-icons/bi"
 import piggyBank from './../assets/svgs/piggybank.svg'
 import cofferchest from './../assets/svgs/coffer-chest.svg'
@@ -14,6 +14,9 @@ import { WalletConnectButton } from "../components/ConnectWallet"
 import { useAccount } from "wagmi"
 import { useDialogBox } from "../hooks/useDialogBox"
 import { useToastBox } from "../hooks/useToast"
+import { shortenAddress } from "../hooks/shortenAddress"
+import { useReferralLogs } from "../hooks/useReferralLogs"
+// import axios from 'axios';
 
 export function copyToClipboard(value: string) {
     try {
@@ -22,7 +25,7 @@ export function copyToClipboard(value: string) {
     } catch (err) {
         console.error('Failed to copy text: ', err);
     }
-}
+};
 
 const getUserTeamData = async (address: string) => {
     const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
@@ -30,7 +33,7 @@ const getUserTeamData = async (address: string) => {
     const res = await contract?.userTeamData(address);
     // console.log(res);
     return res;
-}
+};
 
 const Referral = () => {
 
@@ -44,31 +47,82 @@ const Referral = () => {
     const { address, isConnected, isConnecting } = useAccount();
 
     const ownerReferral = `coffer.city/rewards/${address}`;
+    const [userQR, setUserQR] = useState<string>('')
+
+    const handleQR = async () => {
+        if (ownerReferral) {
+            const url = `https://apis.coffer.city/qr/qrcode.php?type=json&dest=${ownerReferral}`
+
+            // try {
+            //     axios.get(url)
+            //         .then(response => {
+            //             // console.log(response.data);
+            //             setUserQR(response.data);
+            //         })
+            //         .catch(err => {
+            //             console.log(err);
+            //         });
+            // } catch (error) {
+            //     console.error("An error occurred while fetching the data:", error);
+            // }
+
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return response.json(); // This returns a promise
+            })
+            .then(jsonData => {
+                // console.log(jsonData);
+                setUserQR(jsonData.data);
+            })
+            .catch(err => {
+                console.log(err.message);
+            });
+        }
+    };
+
+    useEffect(() => {
+        const fetchQRCodes = async () => {
+            await handleQR();
+        };
+
+        fetchQRCodes();
+    }, [ownerReferral])
 
     const [ShareDialog, toggleShareDialog] = useDialogBox({
         title: "Share",
         subtitle: "",
         children: (
-            <div className="w-full my-5">
+            <div className="w-full grid gap-6 my-2">
                 <div className="grid grid-cols-3 md:grid-cols-4 gap-5 md:gap-10">
-                    <Link target="_blank" to={`mailto:?subject=Coffer%20City%3A%20Saving%20Made%20Simple%2C%20Smart%20and%20Secure&body=https://${ownerReferral}`} className="grid gap-2">
+                    <Link to={`mailto:?subject=Coffer%20City%3A%20Saving%20Made%20Simple%2C%20Smart%20and%20Secure&body=Coffer%20City%20is%20your%20one-stop%20digital%20Piggy%20Bank%21%20Save%20crypto%20for%20a%20fixed%20duration%20with%20a%20specified%20weekly%20amount%2C%20and%20watch%20your%20savings%20skyrocket%21%0A%0Ahttps://${ownerReferral}`} className="grid gap-2">
                         <BiLogoGmail className='mx-auto rounded-full bg-slate-100 hover:text-red-600 text-red-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
                         <div className="text-center text-xs">Email</div>
                     </Link>
-                    <Link target="_blank" to={`https://api.whatsapp.com/send?text=https://${ownerReferral}`} className="grid gap-2">
+                    <Link target="_blank" to={`https://api.whatsapp.com/send?text=Coffer%20City%20is%20your%20one-stop%20digital%20Piggy%20Bank%21%20Save%20crypto%20for%20a%20fixed%20duration%20with%20a%20specified%20weekly%20amount%2C%20and%20watch%20your%20savings%20skyrocket%21%0A%0Ahttps://${ownerReferral}`} className="grid gap-2">
                         <FaWhatsapp className='mx-auto rounded-full bg-slate-100 hover:text-green-600 text-green-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
                         <div className="text-center text-xs">Whatsapp</div>
                     </Link>
-                    <Link target="_blank" to={`https://www.reddit.com/submit?url=https://${ownerReferral}&title=Coffer%20City%3A%20Saving%20Made%20Simple%2C%20Smart%20and%20Secure`} className="grid gap-2">
+                    <Link target="_blank" to={`https://www.reddit.com/submit?url=Coffer%20City%20is%20your%20one-stop%20digital%20Piggy%20Bank%21%20Save%20crypto%20for%20a%20fixed%20duration%20with%20a%20specified%20weekly%20amount%2C%20and%20watch%20your%20savings%20skyrocket%21%0A%0Ahttps://${ownerReferral}&title=Coffer%20City%3A%20Saving%20Made%20Simple%2C%20Smart%20and%20Secure`} className="grid gap-2">
                         <FaReddit className='mx-auto rounded-full bg-slate-100 hover:text-orange-600 text-orange-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
                         <div className="text-center text-xs">Reddit</div>
                     </Link>
-                    <Link target="_blank" to={`https://t.me/share/url?text=https://${ownerReferral}`} className="grid gap-2">
+                    <Link target="_blank" to={`https://t.me/share/url?text=Coffer%20City%20is%20your%20one-stop%20digital%20Piggy%20Bank%21%20Save%20crypto%20for%20a%20fixed%20duration%20with%20a%20specified%20weekly%20amount%2C%20and%20watch%20your%20savings%20skyrocket%21%0A%0Ahttps://${ownerReferral}&url=https://${ownerReferral}`} className="grid gap-2">
                         <FaTelegram className='mx-auto rounded-full bg-slate-100 hover:text-blue-600 text-blue-600/90 p-4 hover:p-3 w-16 h-16 duration-300' />
                         <div className="text-center text-xs">Telegram</div>
                     </Link>
                 </div>
-                <div></div>
+                <div className="grid text-center">
+                    <small>Or Share your QR code</small>
+                    <img src={userQR} className="mx-auto"/>
+                    <a className='flex gap-2 w-fit mx-auto' href={userQR} download={`${shortenAddress(String(address), 6)}.png`}>
+                        <FaCloudDownloadAlt className='text-3xl m-auto' />
+                        <span className="text-xs m-auto select-none font-semibold">Download QR</span>
+                    </a>
+                </div>
             </div>
         ),
     });
@@ -86,6 +140,14 @@ const Referral = () => {
     ];
 
     useEffect(() => {
+        const fetchReferral = async () => {
+            const dt = await useReferralLogs(String(address), addresses.CofferCityVault[97]);
+            console.log(dt);
+        }
+        fetchReferral();
+    }, [address])
+
+    useEffect(() => {
         const fetchData = async () => {
             const res = await getUserTeamData(String(address));
             const multilevel = res[1];
@@ -101,7 +163,7 @@ const Referral = () => {
         }
 
         fetchData();
-    }, []);
+    }, [address]);
 
     // Define your text conditionally
     let loadingText = 'Fetching data . . .';
@@ -156,7 +218,7 @@ const Referral = () => {
                                         <span className="my-auto text-xs">Twitter</span>
                                     </div>
                                 </Link>
-                                <Link target="_blank" to={`https://www.facebook.com/sharer/sharer.php?t=&u=https://${ownerReferral}`} className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
+                                <Link target="_blank" to={`https://www.facebook.com/sharer/sharer.php?t=&u=text=Coffer%20City%20is%20your%20one-stop%20digital%20Piggy%20Bank%21%20Save%20crypto%20for%20a%20fixed%20duration%20with%20a%20specified%20weekly%20amount%2C%20and%20watch%20your%20savings%20skyrocket%21%0A%0Ahttps://${ownerReferral}`} className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1">
                                     <div className="text-center justify-center flex gap-1 px-2">
                                         <img className="w-5" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgRnJlZSA2LjIuMSBieSBAZm9udGF3ZXNvbWUgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbSBMaWNlbnNlIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20vbGljZW5zZS9mcmVlIChJY29uczogQ0MgQlkgNC4wLCBGb250czogU0lMIE9GTCAxLjEsIENvZGU6IE1JVCBMaWNlbnNlKSBDb3B5cmlnaHQgMjAyMiBGb250aWNvbnMsIEluYy4gLS0+PHBhdGggZD0iTTUwNCAyNTZDNTA0IDExOSAzOTMgOCAyNTYgOFM4IDExOSA4IDI1NmMwIDEyMy43OCA5MC42OSAyMjYuMzggMjA5LjI1IDI0NVYzMjcuNjloLTYzVjI1Nmg2M3YtNTQuNjRjMC02Mi4xNSAzNy05Ni40OCA5My42Ny05Ni40OCAyNy4xNCAwIDU1LjUyIDQuODQgNTUuNTIgNC44NHY2MWgtMzEuMjhjLTMwLjggMC00MC40MSAxOS4xMi00MC40MSAzOC43M1YyNTZoNjguNzhsLTExIDcxLjY5aC01Ny43OFY1MDFDNDEzLjMxIDQ4Mi4zOCA1MDQgMzc5Ljc4IDUwNCAyNTZ6Ii8+PC9zdmc+" />
                                         <span className="my-auto text-xs">Facebook</span>
