@@ -11,7 +11,7 @@ import { addresses } from "../hooks/addresses"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
 import usePreloader, { Preloader } from "../hooks/usePreloader"
 import { WalletConnectButton } from "../components/ConnectWallet"
-import { useAccount } from "wagmi"
+import { useAccount, useBlockNumber } from "wagmi"
 import { useDialogBox } from "../hooks/useDialogBox"
 import { useToastBox } from "../hooks/useToast"
 import { shortenAddress } from "../hooks/shortenAddress"
@@ -45,6 +45,7 @@ const Referral = () => {
 
     // const { address } = useWagmiDetails();
     const { address, isConnected, isConnecting } = useAccount();
+    const { data } = useBlockNumber();
 
     const ownerReferral = `coffer.city/rewards/${address}`;
     const [userQR, setUserQR] = useState<string>('')
@@ -141,7 +142,7 @@ const Referral = () => {
 
     useEffect(() => {
         const fetchReferral = async () => {
-            const dt = await useReferralLogs(String(address), addresses.CofferCityVault[97]);
+            const dt = await useReferralLogs(String(address), addresses.CofferCityVault[97], String(data));
             console.log(dt);
         }
         fetchReferral();

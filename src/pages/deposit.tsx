@@ -104,7 +104,7 @@ const Deposits = () => {
     const [tokenDurations, setTokenDurations] = useState<number[]>([]);
     const [selectedAsset, setSelectedAsset] = useState<SP | null>(null);
     const [selectedAmount, setSelectedAmount] = useState<string>('');
-    const [selectedDuration, setSelectedDuration] = useState<number | null>(null)
+    const [selectedDuration, setSelectedDuration] = useState<number>(0);
     const [amountValid, setAmountValid] = useState<boolean>(false);
     const [durationValid, setDurationValid] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<string>(dropdownOptions[0]);
@@ -138,24 +138,28 @@ const Deposits = () => {
         }
 
         fetchAssets();
-    }, [])
+    }, [address])
 
     useEffect(() => {
         const calculateOutput = async () => {
             let output: number = 0;
-            let amt: number = 0;
+            // let amt: number = 0;
+
+            // console.log(selectedAmount);
+            const fee = await getFeePercent(Number(selectedAmount));
+            const leftOver = Number(selectedAmount) - fee;
 
             if (selectedOption === 'weeks') {
-                amt = Number(selectedAmount) * Number(selectedDuration);
-                output = amt - await getFeePercent(amt);
+                output = leftOver * Number(selectedDuration);
+                // console.log(output)
             }
             if (selectedOption === 'months') {
-                amt = Number(selectedAmount) * Number(selectedDuration) * 4;
-                output = amt - await getFeePercent(amt);
+                output = leftOver * Number(selectedDuration) * 4;
+                // console.log(output)
             }
-            else {
-                amt = Number(selectedAmount) * Number(selectedDuration) * 52;
-                output = amt - await getFeePercent(amt);
+            if (selectedOption === 'years') {
+                output = leftOver * Number(selectedDuration) * 52;
+                // console.log(output)
             }
 
             // console.log(output)
@@ -163,11 +167,11 @@ const Deposits = () => {
             await checkApproval();
         }
 
-        if (amountValid && durationValid) {
-            calculateOutput();
-        };
+        calculateOutput();
 
-    }, [address, selectedAmount, selectedDuration, selectedOption])
+        // console.log(selectedDuration);
+
+    }, [address, selectedDuration, selectedOption, selectedAmount])
 
     const maxTokenAmount = tokenAmounts ? Math.max(...tokenAmounts) : 0;
     const maxDuration = tokenDurations ? Math.max(...tokenDurations) : 0;
