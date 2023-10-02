@@ -80,6 +80,11 @@ const tabs = [
 
 const Root = () => {
 
+    // const context = React.useContext(AppContext);
+    // const { state } = context || {};
+
+    // console.log(state.upline)
+
     return (
         <React.Fragment>
             <Helmet>

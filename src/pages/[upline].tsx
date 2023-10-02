@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect } from "react"
-import { Helmet } from "react-helmet"
-import Layout, { AppContext } from "../components/wrap"
+import { AppContext } from "../components/wrap"
 import usePreloader, { Preloader } from "../hooks/usePreloader";
 import { WalletConnectButton } from "../components/ConnectWallet";
 import { useAccount } from "wagmi";
-import { redirect, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
 export const Upline = () => {
 
@@ -27,12 +26,6 @@ export const Upline = () => {
         }
 
         fetchAddressFromParams();
-
-        function redirectPage() {
-            return redirect('/dashboard');
-        }
-
-        redirectPage();
 
     }, [uplineAddressFromParams]);
 
@@ -61,12 +54,7 @@ export const Upline = () => {
         } />;
     };
 
-    return (
-        <React.Fragment>
-            <Helmet>
-                <title>Welcome {address}</title>
-            </Helmet>
-            <Layout children />
-        </React.Fragment>
-    )
+    if (uplineAddressFromParams === state.upline) {
+        return <Navigate to="/" replace={true} />
+    }
 }
