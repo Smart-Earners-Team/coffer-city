@@ -143,3 +143,21 @@ export const getDebtWeeks = async (depositId: number) => {
     // console.log(debtWeeks);
     return debtWeeks;
 }
+
+export async function parseTokenUri(uri: string) {
+    let jsonString;
+
+    if (uri.startsWith('ipfs://')) {
+        jsonString = uri.replace('ipfs://', 'https://ipfs.io/ipfs/');
+        const response = await fetch(jsonString);
+        const jsonObject = await response.json();
+        return jsonObject;
+    } else if (uri.startsWith('data:application/json;base64,')) {
+        const base64String = uri.replace("data:application/json;base64,", "");
+        jsonString = atob(base64String);
+        const jsonObject = JSON.parse(jsonString);
+        return jsonObject;
+    } else {
+        throw new Error('Invalid IPFS URI');
+    }
+};
