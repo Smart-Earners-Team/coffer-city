@@ -66,7 +66,7 @@ const Referral = () => {
     const { address, isConnected, isConnecting } = useAccount();
     const { data } = useBlockNumber();
 
-    const ownerReferral = `localhost:5173/rewards/${address}`;
+    const ownerReferral = `coffer-city.vercel.app/rewards/${address}`;
     const [userQR, setUserQR] = useState<string>('')
 
     const handleQR = async () => {
@@ -245,7 +245,7 @@ const Referral = () => {
                             <div className="bg-slate-50 rounded-3xl ring-1 ring-slate-800 p-1 px-5 flex gap-3 justify-between">
                                 <div className="opacity-90 text-xs md:text-sm select-none overflow-hidden overflow-ellipsis whitespace-nowrap my-auto">{ownerReferral}</div>
                                 <button onClick={() => {
-                                    copyToClipboard(`http://${ownerReferral}`);
+                                    copyToClipboard(`https://${ownerReferral}`);
                                     showSuccess(3000);
                                 }} className="float-right flex w-fit gap-1">
                                     <FaCopy className='text-lg' />
