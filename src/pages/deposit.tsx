@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
-import Layout from "../components/wrap"
+import Layout, { AppContext } from "../components/wrap"
 import cmc from './../utils/extras/cmc.json'
 import EarnersDropdown from "../components/EarnersDropdown"
 import { FaCheck } from "react-icons/fa"
@@ -84,6 +84,11 @@ interface SP {
 }
 
 const Deposits = () => {
+
+    const context = React.useContext(AppContext);
+    const { state } = context || {};
+
+    // console.log(state.upline)
 
     const dropdownOptions: string[] = [`weeks`, `months`, `years`];
     const { chain } = useNetwork();
@@ -285,8 +290,11 @@ const Deposits = () => {
 
     const handleConfirm = async () => {
         setAmountValid(false);
-        // Account 4
-        const ref: string = "0xBeA3F1eDe1210673adEd2db774392B58D0b90011";
+        
+        // Upline Address
+        let ref: string = state.upline;
+        if (address === ref) ref ='0x0000000000000000000000000000000000000000';
+
         const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
 
         let amt: string = '0';

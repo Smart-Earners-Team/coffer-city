@@ -161,3 +161,23 @@ export async function parseTokenUri(uri: string) {
         throw new Error('Invalid IPFS URI');
     }
 };
+
+export async function fetchTokenPairs(address: string, chain: string) {
+    const url = `https://api.dexscreener.com/latest/dex/tokens/${address}`;
+
+    try {
+        fetch(url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data)=>{
+                const filteredData = data.pairs.filter((item:any) => item.chainId === chain);
+                console.log(filteredData)
+            })
+    } catch (error) {
+        console.log(error);
+    }
+};

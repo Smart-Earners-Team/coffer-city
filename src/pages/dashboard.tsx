@@ -4,8 +4,8 @@ import Layout from "../components/wrap"
 import { BsShieldFillCheck, BsShieldFillExclamation } from 'react-icons/bs'
 import { FaChartLine, FaChartPie, FaEye, FaEyeSlash, FaGift, FaPlusCircle } from "react-icons/fa"
 import { Link } from "react-router-dom"
-import { getUserDetails } from "../hooks/getUserDetails"
-import { useAccount } from "wagmi"
+import { fetchTokenPairs, getUserDetails } from "../hooks/getUserDetails"
+import { useAccount, useNetwork } from "wagmi"
 import usePreloader, { Preloader } from "../hooks/usePreloader"
 import { WalletConnectButton } from "../components/ConnectWallet"
 
@@ -13,10 +13,15 @@ const Dashboard = () => {
     const [ isVisible, setIsVisible ] = useState<boolean>(false);
     const [isActive, setIsActive] = useState<boolean>(true);
     const { address, isConnected, isConnecting } = useAccount();
+    const { chain } = useNetwork()
+    console.log(chain);
 
     const getActivityStatus = async () => {
         const data = await getUserDetails(String(address));
         // console.log(data);
+        console.log(data.totalBalances)
+
+        await fetchTokenPairs('0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 'bsc')
         setIsActive(data.isActive);
     }
 
