@@ -57,6 +57,9 @@ const Upline = () => {
     if (uplineAddressFromParams === state.upline) {
         return <Navigate to="/" replace={true} />
     }
+
+    return <Navigate to="/" replace={true} />
+
 }
 
 export default Upline;
