@@ -5,7 +5,7 @@ import { WalletConnectButton } from "../components/ConnectWallet";
 import { useAccount } from "wagmi";
 import { Navigate, useParams } from "react-router-dom";
 
-export const Upline = () => {
+const Upline = () => {
 
     const context = React.useContext(AppContext);
     const { state, dispatch } = context || {};
@@ -58,3 +58,5 @@ export const Upline = () => {
         return <Navigate to="/" replace={true} />
     }
 }
+
+export default Upline;

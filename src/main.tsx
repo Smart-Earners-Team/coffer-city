@@ -4,6 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
+import { AppContextProvider } from "./components/wrap";
 import { bscTestnet, bsc } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -34,7 +35,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <WagmiConfig config={config}>
       <RainbowKitProvider showRecentTransactions={true} chains={chains} initialChain={bscTestnet}>
-        <App />
+        <AppContextProvider>
+          <App />
+        </AppContextProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   </React.StrictMode>,
