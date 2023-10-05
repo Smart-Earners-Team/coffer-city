@@ -71,7 +71,7 @@ export const getUserDetails = async (address: string ) => {
             numberOfDeposits: 0,
             totalTopUps: 0,
             userDeposits: [],
-            totalBalances: 0, // This is a mapping of asset address -> total balance
+            totalBalances: {}, // This is a mapping of asset address -> total balance
             totalDebts: 0, // This is a mapping of asset address -> total debt
             firstDepositTime: 0,
             latestDepositTime: 0,
@@ -165,19 +165,25 @@ export async function parseTokenUri(uri: string) {
 export async function fetchTokenPairs(address: string, chain: string) {
     const url = `https://api.dexscreener.com/latest/dex/tokens/${address}`;
 
+    let price: number = 0;
+
     try {
-        fetch(url)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((data)=>{
-                const filteredData = data.pairs.filter((item:any) => item.chainId === chain);
-                console.log(filteredData)
-            })
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        const filteredData = data.pairs.filter((item: any) => item.chainId === chain && item.baseToken.address === address);
+
+        if (filteredData[0].priceUsd > 0) {
+            price = filteredData[0].priceUsd;
+        }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
+
+    // console.log(price)
+    return price;
 };
