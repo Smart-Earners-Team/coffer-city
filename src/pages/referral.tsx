@@ -12,7 +12,7 @@ import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
 import CofferNftABI from './../utils/ABIs/CofferNftABI.json'
 import usePreloader, { Preloader } from "../hooks/usePreloader"
 import { WalletConnectButton } from "../components/ConnectWallet"
-import { useAccount, useBlockNumber } from "wagmi"
+import { useAccount, useBlockNumber, useNetwork } from "wagmi"
 import { useDialogBox } from "../hooks/useDialogBox"
 import { useToastBox } from "../hooks/useToast"
 import { shortenAddress } from "../hooks/shortenAddress"
@@ -36,16 +36,16 @@ export function copyToClipboard(value: string) {
     }
 };
 
-const getUserTeamData = async (address: string) => {
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+const getUserTeamData = async (address: string, rpcUrl: string, contractAddress: string) => {
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
 
     const res = await contract?.userTeamData(address);
     // console.log(res);
     return res;
 };
 
-const getNftData = async (address: string, id: number) => {
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: address, contractABI: CofferNftABI });
+const getNftData = async (address: string, id: number, rpcUrl: string) => {
+    const contract = useContractInitializer({ rpc: String(rpcUrl), contractAddress: address, contractABI: CofferNftABI });
 
     const res = await contract?.tokenURI(id);
     // console.log(res);
@@ -65,6 +65,9 @@ const Referral = () => {
     // const { address } = useWagmiDetails();
     const { address, isConnected, isConnecting } = useAccount();
     const { data } = useBlockNumber();
+    const { chain } = useNetwork();
+    const cID = Number(chain?.id);
+    const rpcUrl = chain?.rpcUrls.public.http[0];
 
     const ownerReferral = `coffer-city.vercel.app/rewards/${address}`;
     const [userQR, setUserQR] = useState<string>('')
@@ -174,7 +177,7 @@ const Referral = () => {
                 for (let i = 0; i < dt.length; i++) {
                     // console.log(typeof dt[i].nftCA)
                     // console.log(typeof dt[i].nftID)
-                    const res = await getNftData(dt[i].nftCA, dt[i].nftID);
+                    const res = await getNftData(dt[i].nftCA, dt[i].nftID, String(rpcUrl));
                     nftArr.push({
                         nftCA: dt[i].nftCA,
                         nftID: dt[i].nftID,
@@ -191,7 +194,7 @@ const Referral = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await getUserTeamData(String(address));
+            const res = await getUserTeamData(String(address), String(rpcUrl), addresses.CofferCityVault[cID]);
             const multilevel = res[1];
             // console.log(multilevel);
             const lv1 = multilevel[0];

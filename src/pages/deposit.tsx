@@ -18,8 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import usePreloader, { Preloader } from "../hooks/usePreloader"
 import { WalletConnectButton } from "../components/ConnectWallet"
 
-const getAddressArray = async () => {
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+const getAddressArray = async (rpcUrl: string, contractAddress: string) => {
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
 
     let addrArray: string[];
 
@@ -29,8 +29,8 @@ const getAddressArray = async () => {
     return addrArray;
 }
 
-const getFeePercent = async (value: number) => {
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+const getFeePercent = async (value: number, rpcUrl: string, contractAddress: string) => {
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
 
     const feePercent = await contract?.feePercent();
     const base = await contract?.base();
@@ -57,8 +57,8 @@ export const getTokenData = async (tokenAddr: string) => {
     return tokenData;
 }
 
-const populateAssets = async () => {
-    const addressArray: string[] = await getAddressArray();
+const populateAssets = async (rpcUrl: string, contractAddress: string) => {
+    const addressArray: string[] = await getAddressArray(rpcUrl, contractAddress);
     // console.log(addressArray);
 
     let assets = [];
@@ -138,7 +138,7 @@ const Deposits = () => {
 
     useEffect(() => {
         const fetchAssets = async () => {
-            const res = await populateAssets();
+            const res = await populateAssets(String(chain?.rpcUrls.public.http[0]), addresses.CofferCityVault[cID]);
             setSupportedAssets(res);
         }
 
@@ -151,7 +151,8 @@ const Deposits = () => {
             // let amt: number = 0;
 
             // console.log(selectedAmount);
-            const fee = await getFeePercent(Number(selectedAmount));
+
+            const fee = await getFeePercent(Number(selectedAmount), String(chain?.rpcUrls.public.http[0]), addresses.CofferCityVault[cID]);
             const leftOver = Number(selectedAmount) - fee;
 
             if (selectedOption === 'weeks') {
@@ -185,7 +186,7 @@ const Deposits = () => {
         if (supportedAssets) setSelectedAsset(val);
 
         try {
-            const res = await getAmountForAssets(val.address);
+            const res = await getAmountForAssets(val.address, String(chain?.rpcUrls.public.http[0]), addresses.CofferCityVault[cID]);
             // console.log(res);
             const tRes: bigint[] = res.amountTiersByToken;
             // console.log(tRes);
@@ -283,7 +284,7 @@ const Deposits = () => {
 
         const contract = new ethers.Contract(String(selectedAsset?.address), ERC20ABI, signer);
 
-        const approve = await contract?.approve(addresses.CofferCityVault[97], ethers.MaxUint256);
+        const approve = await contract?.approve(addresses.CofferCityVault[cID], ethers.MaxUint256);
         await approve.wait();
         await checkApproval();
     }
@@ -295,7 +296,7 @@ const Deposits = () => {
         let ref: string = state.upline;
         if (address === ref) ref ='0x0000000000000000000000000000000000000000';
 
-        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+        const contract = new ethers.Contract(addresses.CofferCityVault[cID], CofferCityVaultABI, signer);
 
         let amt: string = '0';
         let dur: number = 0;
@@ -317,7 +318,7 @@ const Deposits = () => {
         }
 
         if (amtTier == 255) {
-            const assetContract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
+            const assetContract = useContractInitializer({ rpc: String(chain?.rpcUrls.public.http[0]), contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
             const assetDecimals: number = await assetContract?.decimals();
 
             amt = new BigNumber(Number(selectedAmount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
@@ -334,11 +335,17 @@ const Deposits = () => {
 
     const checkApproval = async () => {
         if (selectedAmount) {
-            const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
+            const contract = useContractInitializer({ rpc: String(chain?.rpcUrls.public.http[0]), contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
 
-            const allowance: number = await contract?.allowance(address, addresses.CofferCityVault[97]);
+            const allowance: number = await contract?.allowance(address, addresses.CofferCityVault[cID]);
 
-            const assetDecimals: number = await contract?.decimals();
+            let assetDecimals: number;
+            try {
+                assetDecimals = await contract?.decimals();
+            } catch (error) {
+                assetDecimals = 18;
+                // console.log(error)
+            }
             // console.log(assetDecimals);
 
             // const value = (Number(selectedAmount) * assetDecimals);
@@ -363,9 +370,15 @@ const Deposits = () => {
     }
 
     const handleBalance = async (amt: number) => {
-        const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
+        const contract = useContractInitializer({ rpc: String(chain?.rpcUrls.public.http[0]), contractAddress: String(selectedAsset?.address), contractABI: ERC20ABI });
 
-        const assetDecimals: number = await contract?.decimals();
+        let assetDecimals: number;
+        try {
+            assetDecimals = await contract?.decimals();
+        } catch (error) {
+            assetDecimals = 18;
+            // console.log(error)
+        }
         // console.log(assetDecimals);
 
         const value = new BigNumber(amt).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();

@@ -3,11 +3,12 @@ import { Helmet } from "react-helmet"
 import Layout from "../components/wrap"
 import { Link } from "react-router-dom";
 import { getDepositIds, getProgressPercentage, getUserDetails } from '../hooks/getUserDetails'
-import { useAccount } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
 import { useDateFromTimestamp } from "../hooks/getDuration";
 import ProgressBar from "../components/ProgressBar";
 import usePreloader, { Preloader } from "../hooks/usePreloader";
 import { WalletConnectButton } from "../components/ConnectWallet";
+import { addresses } from "../hooks/addresses";
 
 interface ICofferCityDeposits {
     owner: string;
@@ -34,11 +35,14 @@ const OverView = () => {
     const [userDeposits, setUserDeposits] = useState<ICofferCityDepositsWithID[]>([]);
     const [progressArray, setProgressArray] = useState<number[]>([]);
     const { address, isConnected, isConnecting } = useAccount();
+    const { chain } = useNetwork();
+    const cID = Number(chain?.id);
+    const rpcUrl = chain?.rpcUrls.public.http[0];
 
     useEffect(() => {
         const fetchData = async () => {
-            const details = await getUserDetails(String(address));
-            const depositIdArray = await getDepositIds(String(address));
+            const details = await getUserDetails(String(address), String(rpcUrl), addresses.CofferCityVault[cID]);
+            const depositIdArray = await getDepositIds(String(address), String(rpcUrl), addresses.CofferCityVault[cID]);
             // console.log(depositIdArray);
             // console.log(Number(depositIdArray[0]));
             setUserDetails(details);

@@ -40,6 +40,7 @@ const DepositInfo = () => {
     const { address } = useAccount();
     const { chain } = useNetwork();
     const cID = Number(chain?.id);
+    const rpcUrl = chain?.rpcUrls.public.http[0];
     const signer = useEthersSigner({ chainId: cID });
     
     const blockExplorerUrl = chain?.blockExplorers?.default.url;
@@ -55,16 +56,16 @@ const DepositInfo = () => {
 
     useEffect(() => {
         const fetchPageData = async () => {
-            const res = await getDepositDetails(Number(depositId));
+            const res = await getDepositDetails(Number(depositId), String(rpcUrl), addresses.CofferCityVault[cID]);
             // console.log(res);
             setDepositDetails(res);
 
             const tk = await getTokenData(res.asset);
             // console.log(tk);
             
-            const { assetDecimals } = await getAmountForAssets(tk.address);
+            const { assetDecimals } = await getAmountForAssets(tk.address, String(rpcUrl), addresses.CofferCityVault[cID]);
 
-            const debtWeeks = await getDebtWeeks(Number(depositId));
+            const debtWeeks = await getDebtWeeks(Number(depositId), String(rpcUrl), addresses.CofferCityVault[cID]);
             // console.log(debtWeeks);
 
             const assetBal = new BigNumber(res.balance).div(new BigNumber(10).pow(Number(assetDecimals))).toNumber();
@@ -110,7 +111,7 @@ const DepositInfo = () => {
 
     const handleTopUp = async () => {
         setOutstanding(0);
-        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+        const contract = new ethers.Contract(addresses.CofferCityVault[cID], CofferCityVaultABI, signer);
 
         const res = await contract?.topup(Number(depositId));
         await res.wait();
@@ -120,7 +121,7 @@ const DepositInfo = () => {
 
     const handleWithdraw = async () => {
         setWithdrawn(true);
-        const contract = new ethers.Contract(addresses.CofferCityVault[97], CofferCityVaultABI, signer);
+        const contract = new ethers.Contract(addresses.CofferCityVault[cID], CofferCityVaultABI, signer);
 
         const res = await contract?.withdraw(Number(depositId));
         await res.wait();
@@ -131,18 +132,24 @@ const DepositInfo = () => {
     const handleApprove = async () => {
         const contract = new ethers.Contract(String(assetDetails?.address), ERC20ABI, signer);
 
-        const approve = await contract?.approve(addresses.CofferCityVault[97], ethers.MaxUint256);
+        const approve = await contract?.approve(addresses.CofferCityVault[cID], ethers.MaxUint256);
         await approve.wait();
 
         await checkApproval(Number(amountWeekly), String(assetDetails?.address), String(depositDetails?.owner));
     };
 
     const checkApproval = async (amount: number, CA: string, ownerAddress: string) => {
-        const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: CA, contractABI: ERC20ABI });
+        const contract = useContractInitializer({ rpc: String(rpcUrl), contractAddress: CA, contractABI: ERC20ABI });
 
-        const allowance: number = await contract?.allowance(ownerAddress, addresses.CofferCityVault[97]);
+        const allowance: number = await contract?.allowance(ownerAddress, addresses.CofferCityVault[cID]);
 
-        const assetDecimals: number = await contract?.decimals();
+        let assetDecimals: number;
+        try {
+            assetDecimals = await contract?.decimals();
+        } catch (error) {
+            assetDecimals = 18;
+            // console.log(error)
+        }
         // console.log(assetDecimals);
 
         const value = new BigNumber(Number(amount)).times(new BigNumber(10).pow(Number(assetDecimals))).toFixed();
@@ -225,7 +232,7 @@ const DepositInfo = () => {
                         </div>
                         <div className='p-2 rounded-l-full rounded-r-full bg-slate-200 gap-3 grid-cols-1 md:grid-cols-2 flex w-full'>
                             <div className='text-3xl my-auto rounded-full bg-slate-50 p-5 w-24 h-24'>
-                                <svg fill='#ff7700' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M232 120C232 106.7 242.7 96 256 96C269.3 96 280 106.7 280 120V243.2L365.3 300C376.3 307.4 379.3 322.3 371.1 333.3C364.6 344.3 349.7 347.3 338.7 339.1L242.7 275.1C236 271.5 232 264 232 255.1L232 120zM256 0C397.4 0 512 114.6 512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0zM48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48C141.1 48 48 141.1 48 256z"/></svg>
+                                <svg fill='#ff7700' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M232 120C232 106.7 242.7 96 256 96C269.3 96 280 106.7 280 120V243.2L365.3 300C376.3 307.4 379.3 322.3 371.1 333.3C364.6 344.3 349.7 347.3 338.7 339.1L242.7 275.1C236 271.5 232 264 232 255.1L232 120zM256 0C3cID.4 0 512 114.6 512 256C512 3cID.4 3cID.4 512 256 512C114.6 512 0 3cID.4 0 256C0 114.6 114.6 0 256 0zM48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48C141.1 48 48 141.1 48 256z"/></svg>
                             </div>
                             <div className='my-auto'>
                                 <div className='font-extrabold text-lg'>Duration</div>

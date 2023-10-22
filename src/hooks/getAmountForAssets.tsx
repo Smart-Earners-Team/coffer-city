@@ -1,18 +1,23 @@
 import { useContractInitializer } from "./useEthers"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
 import ERC20ABI from './../utils/ABIs/ERC20ABI.json'
-import { addresses } from "./addresses";
 
-export const getAmountForAssets = async (address: string) => {
+export const getAmountForAssets = async (address: string, rpcUrl: string, contractAddress: string ) => {
 
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
 
-    const assetContract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: address, contractABI: ERC20ABI });
+    const assetContract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: ERC20ABI });
 
     const amountTiersByToken: bigint[] = await contract?.getAmountTiersByToken(address);
     // console.log(amountTiersByToken);
 
-    const assetDecimals: number = await assetContract?.decimals();
+    let assetDecimals: number;
+    try {
+        assetDecimals = await assetContract?.decimals();
+    } catch (error) {
+        assetDecimals = 18;
+        // console.log(error)
+    }
 
     const durationTiers: bigint[] = await contract?.getDurations();
     // console.log(durationTiers);

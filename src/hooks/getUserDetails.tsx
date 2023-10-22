@@ -1,11 +1,10 @@
 import { useContractInitializer } from "./useEthers"
 import CofferCityVaultABI from './../utils/ABIs/CofferVaultABI.json'
-import { addresses } from "./addresses";
 import { ethers } from "ethers";
 
-export const getUserDetails = async (address: string ) => {
+export const getUserDetails = async (address: string, rpcUrl: string, contractAddress: string ) => {
 
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
     // console.log(contract);
 
     try {
@@ -81,8 +80,8 @@ export const getUserDetails = async (address: string ) => {
     }
 }
 
-export const getDepositIds = async (address: string) => {
-    const contract = useContractInitializer({rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+export const getDepositIds = async (address: string, rpcUrl: string, contractAddress: string) => {
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
     // console.log(contract);
 
     const userDepositIds = await contract?.getDepositsByOwnerAddress(address);
@@ -90,7 +89,7 @@ export const getDepositIds = async (address: string) => {
     return userDepositIds;
 }
 
-export const getDepositDetails = async (id: number) => {
+export const getDepositDetails = async (id: number, rpcUrl: string, contractAddress: string) => {
     let result = {
         owner: '',
         asset: '',
@@ -102,7 +101,7 @@ export const getDepositDetails = async (id: number) => {
         withdrawn: false,
     }
 
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
 
     try {
         const data = await contract?.getDepositDetails(id);
@@ -136,8 +135,8 @@ export const getProgressPercentage = (startTime: number, duration: number) => {
     return Math.min(progressPercentage, 100);
 }
 
-export const getDebtWeeks = async (depositId: number) => {
-    const contract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: addresses.CofferCityVault[97], contractABI: CofferCityVaultABI });
+export const getDebtWeeks = async (depositId: number, rpcUrl: string, contractAddress: string) => {
+    const contract = useContractInitializer({ rpc: rpcUrl, contractAddress: contractAddress, contractABI: CofferCityVaultABI });
 
     const debtWeeks = ethers.toNumber(await contract?.getDebtWeeks(depositId));
     // console.log(debtWeeks);
@@ -181,7 +180,7 @@ export async function fetchTokenPairs(address: string, chain: string) {
             price = filteredData[0].priceUsd;
         }
     } catch (error) {
-        console.error(error);
+        // console.error(error);
     }
 
     // console.log(price)

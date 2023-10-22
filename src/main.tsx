@@ -2,29 +2,30 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, WagmiConfig, Chain } from 'wagmi'
+import { Chain, getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { AppContextProvider } from "./components/wrap";
 import { bscTestnet, bsc } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public';
 import '@rainbow-me/rainbowkit/styles.css';
 
-export const tToro = {
+export const tToro: Chain = {
   id: 54321,
   name: 'Toronet Testnet',
   network: 'toronet',
+  iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/200x200/5167.png',
   nativeCurrency: {
     decimals: 18,
     name: 'TestToro',
     symbol: 'tToro',
   },
   rpcUrls: {
-    public: { http: ['http://testnet.toronet.org/rpc/'] },
-    default: { http: ['http://testnet.toronet.org/rpc/'] },
+    public: { http: ['https://testnet.toronet.org/rpc/'] },
+    default: { http: ['https://testnet.toronet.org/rpc/'] },
   },
   blockExplorers: {
-    etherscan: { name: 'Toronet Explorer', url: 'http://testnet.toronet.org/' },
-    default: { name: 'Toronet Explorer', url: 'http://testnet.toronet.org/' },
+    etherscan: { name: 'Toronet Explorer', url: 'https://testnet.toronet.org/' },
+    default: { name: 'Toronet Explorer', url: 'https://testnet.toronet.org/' },
   },
   contracts: {
     multicall3: {
@@ -59,7 +60,7 @@ const config = createConfig({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <WagmiConfig config={config}>
-      <RainbowKitProvider showRecentTransactions={true} chains={chains} initialChain={bscTestnet}>
+      <RainbowKitProvider showRecentTransactions={true} chains={chains} initialChain={tToro}>
         <AppContextProvider>
           <App />
         </AppContextProvider>

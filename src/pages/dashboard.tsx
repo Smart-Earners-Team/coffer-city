@@ -5,27 +5,26 @@ import { BsShieldFillCheck, BsShieldFillExclamation } from 'react-icons/bs'
 import { FaChartLine, FaChartPie, FaEye, FaEyeSlash, FaGift, FaPlusCircle } from "react-icons/fa"
 import { Link } from "react-router-dom"
 import { fetchTokenPairs, getUserDetails } from "../hooks/getUserDetails"
-import { useAccount, 
-    // useNetwork 
-} from "wagmi"
+import { useAccount, useNetwork } from "wagmi"
 import usePreloader, { Preloader } from "../hooks/usePreloader"
 import { WalletConnectButton } from "../components/ConnectWallet"
 import { useContractInitializer } from "../hooks/useEthers"
 import ERC20ABI from './../utils/ABIs/ERC20ABI.json'
 import BigNumber from "bignumber.js"
+import { addresses } from "../hooks/addresses"
 
 const Dashboard = () => {
     const [ isVisible, setIsVisible ] = useState<boolean>(false);
     const [isActive, setIsActive] = useState<boolean>(true);
     const [savingsBalance, setSavingsBalance] = useState<number>(0);
     const { address, isConnected, isConnecting } = useAccount();
-    // const { chain } = useNetwork();
-    // console.log(chain?.network);
-    // console.log(chains)
+    const { chain } = useNetwork();
+    const cID = Number(chain?.id);
+    const rpcUrl = chain?.rpcUrls.public.http[0];
 
     const getActivityStatus = async () => {
         let savingsBalance: number = 0;
-        const data = await getUserDetails(String(address));
+        const data = await getUserDetails(String(address), String(rpcUrl), addresses.CofferCityVault[cID]);
 
         const totalBalances = data.totalBalances;
         const balanceArr: [string, number][] = Object.entries(totalBalances);
@@ -33,9 +32,15 @@ const Dashboard = () => {
         // Create an array of promises for the asynchronous operations
         const promises = balanceArr.map(async ([address, value]) => {
             // console.log(value)
-            const assetContract = useContractInitializer({ rpc: 'https://bsc-testnet.publicnode.com', contractAddress: String(address), contractABI: ERC20ABI });
+            const assetContract = useContractInitializer({ rpc: String(rpcUrl), contractAddress: String(address), contractABI: ERC20ABI });
 
-            const assetDecimals: number = await assetContract?.decimals();
+            let assetDecimals: number;
+            try {
+                assetDecimals = await assetContract?.decimals();
+            } catch (error) {
+                assetDecimals = 18;
+                // console.log(error)
+            }
             // console.log(assetDecimals);
             
             const amt = new BigNumber(Number(value)).div(new BigNumber(10).pow(Number(assetDecimals))).toNumber();
@@ -43,7 +48,7 @@ const Dashboard = () => {
 
             // const priceUsd: number = await fetchTokenPairs(address, String(chain?.network));
 
-            const priceUsd: number = await fetchTokenPairs('0xeC1F55b5Be7Ee8c24Ee26B6Cc931ce4d7Fd5955C', 'bsc');
+            const priceUsd: number = await fetchTokenPairs(String(address), 'bsc');
 
             const val = amt * priceUsd;
             savingsBalance += val;
