@@ -3,15 +3,40 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi'
+import { configureChains, createConfig, WagmiConfig, Chain } from 'wagmi'
 import { AppContextProvider } from "./components/wrap";
 import { bscTestnet, bsc } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public';
 import '@rainbow-me/rainbowkit/styles.css';
 
+export const tToro = {
+  id: 54321,
+  name: 'Toronet Testnet',
+  network: 'toronet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'TestToro',
+    symbol: 'tToro',
+  },
+  rpcUrls: {
+    public: { http: ['http://testnet.toronet.org/rpc/'] },
+    default: { http: ['http://testnet.toronet.org/rpc/'] },
+  },
+  blockExplorers: {
+    etherscan: { name: 'Toronet Explorer', url: 'http://testnet.toronet.org/' },
+    default: { name: 'Toronet Explorer', url: 'http://testnet.toronet.org/' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0x3364045D78f0df62425C48B721FC5C1c742bD7fb',
+      blockCreated: 14308550,
+    },
+  },
+} as const satisfies Chain
+
 // const chains = [bscTestnet]
 const { chains, publicClient } = configureChains(
-  [bscTestnet, bsc],
+  [bscTestnet, tToro, bsc],
   [
     publicProvider()
   ]
