@@ -53288,6 +53288,30 @@
       "chainId": 97,
       "decimals": 18,
       "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/20517.png"
+    },
+    {
+      "name": "Toro USD",
+      "symbol": "τUSD",
+      "address": "0x21fe4779B8b8e00Fb76e754A1D527ad758DfEdE7",
+      "chainId": 54321,
+      "decimals": 18,
+      "logoURI": "https://s2.coinmarketcap.com/static/img/coins/200x200/5167.png"
+    },
+    {
+      "name": "Toro Naira",
+      "symbol": "τNGN",
+      "address": "0xa9B9e6F612e721bB906d4388cD4eEEDEb2c1Fb68",
+      "chainId": 54321,
+      "decimals": 18,
+      "logoURI": "https://static.thenounproject.com/png/248782-200.png"
+    },
+    {
+      "name": "ESPEES",
+      "symbol": "ESPEES",
+      "address": "0x71732dda245F51f981924051E6F5ECBf7FFEa516",
+      "chainId": 54321,
+      "decimals": 18,
+      "logoURI": "https://web.espees.org/espeesCoinOption5.png"
     }
   ]
 }
