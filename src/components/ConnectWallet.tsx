@@ -44,7 +44,7 @@ export const WalletConnectButton = () => {
                             }
                             return (
                                 <div className="flex gap-3">
-                                    {/* <button
+                                    <button
                                         onClick={openChainModal}
                                         className="flex items-center bg-[#28a745]/40 hover:bg-[#28a745]/50 duration-300 text-white p-2 rounded-lg"
                                         type="button"
@@ -63,7 +63,7 @@ export const WalletConnectButton = () => {
                                             </div>
                                         )}
                                         {chain.name}
-                                    </button> */}
+                                    </button>
                                     <Link to={'/dashboard'} className="bg-[#28a745]/40 hover:bg-[#28a745]/50 duration-300 rounded-lg p-2 overflow-hidden">Dashboard</Link>
                                     <button onClick={openAccountModal} type="button" className="bg-[#28a745]/40 hover:bg-[#28a745]/50 duration-300 p-2 rounded-lg">
                                         {account.displayName}

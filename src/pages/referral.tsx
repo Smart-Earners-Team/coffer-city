@@ -65,6 +65,8 @@ const Referral = () => {
     // const { address } = useWagmiDetails();
     const { address, isConnected, isConnecting } = useAccount();
     const { data } = useBlockNumber();
+    const fromBlock = data && BigInt(data) - BigInt(876096);
+    // console.log(fromBlock)
     const { chain } = useNetwork();
     const cID = Number(chain?.id);
     const rpcUrl = chain?.rpcUrls.public.http[0];
@@ -166,7 +168,7 @@ const Referral = () => {
 
     useEffect(() => {
         const fetchReferral = async () => {
-            const dt = await useReferralLogs(String(address), addresses.CofferCityVault[97], String(data));
+            const dt = (data && fromBlock) && await useReferralLogs(String(address), addresses.CofferCityVault[cID], data, fromBlock, String(rpcUrl));
             // console.log(dt);
             // Later in your code, you can update myRewards like this:
             // dt && setMyRewards(dt);
@@ -190,7 +192,7 @@ const Referral = () => {
         }
         fetchReferral();
         // console.log(myRewards);
-    }, [address])
+    }, [address, data, fromBlock])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -208,7 +210,7 @@ const Referral = () => {
         }
 
         fetchData();
-    }, [address]);
+    }, [address, cID, rpcUrl]);
 
     // Define your text conditionally
     let loadingText = 'Fetching data . . .';
