@@ -29,35 +29,6 @@ This smart contract is responsible for keeping track of referrals which can be a
 
 This smart contract manages the metada for both NFT collections above 100% on-chain.
 
-### Transactions
-- https://testnet.toronet.org/address.html?f=0&q=0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
-  
-  ```
-  {
-    "result": true,
-    "transaction": {
-        "blockHash": "0x98b3fb0b032ddfaef7124e5c0c57780c888e4cff2708776ec803485eb5e8114c",
-        "blockNumber": 14482228,
-        "from": "0x9B71B4Dc9E9DCeFAF0e291Cf2DC5135A862A463d",
-        "gas": 411020,
-        "gasPrice": "0",
-        "hash": "0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c",
-        "input": "0x35b2d84b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001baf800000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "nonce": 9,
-        "to": "0x96ad2b94e8C032E500663b8014A0BB7450F1263e",
-        "transactionIndex": 0,
-        "value": "0",
-        "type": "0x0",
-        "v": "0x1a885",
-        "r": "0xf273ecc29b83466fc7dea867f133737532b74db0e294b8bfd38f1f732d73a3c5",
-        "s": "0x59d78fab9e383523d96c7d9989cd1174d9329ba66a634c5c50ad725484ff74e7"
-    },
-    "message": "transaction '0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c' has been queried"
-}```
-
-- https://testnet.toronet.org/address.html?f=0&q=0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
-- https://testnet.toronet.org/address.html?f=0&q=0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
-
 ### Introduction:
 Coffer City is a web3 solution designed to tackle financial insecurities and improve economic resilience within communities in Nigeria. By leveraging blockchain technology, Coffer City provides a transparent and secure platform for individuals to engage in weekly savings/contributions towards the accumulation of selected assets over a specified duration. This initiative not only promotes financial discipline but also drives economic empowerment and financial inclusion, especially among low-income earners and informal sector operators.   
 
@@ -96,3 +67,77 @@ With a minimal 1% maintenance fee, Coffer City has a built-in revenue model ensu
 
 In sum, integrating Coffer City into the Toronet ecosystem could not only solve pertinent financial issues but also significantly contribute to the growth, innovation, and sustainability of the Toronet blockchain ecosystem.
  
+### Transactions
+- Tx Hash: 0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
+  
+  ```json
+  {
+    "result": true,
+    "transaction": {
+        "blockHash": "0x98b3fb0b032ddfaef7124e5c0c57780c888e4cff2708776ec803485eb5e8114c",
+        "blockNumber": 14482228,
+        "from": "0x9B71B4Dc9E9DCeFAF0e291Cf2DC5135A862A463d",
+        "gas": 411020,
+        "gasPrice": "0",
+        "hash": "0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c",
+        "input": "0x35b2d84b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001baf800000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "nonce": 9,
+        "to": "0x96ad2b94e8C032E500663b8014A0BB7450F1263e",
+        "transactionIndex": 0,
+        "value": "0",
+        "type": "0x0",
+        "v": "0x1a885",
+        "r": "0xf273ecc29b83466fc7dea867f133737532b74db0e294b8bfd38f1f732d73a3c5",
+        "s": "0x59d78fab9e383523d96c7d9989cd1174d9329ba66a634c5c50ad725484ff74e7"
+    },
+    "message": "transaction '0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c' has been queried"
+}
+
+- Tx Hash: 0x939c189de9e02b2de7242577f1f48ebf7a5f5198c61b6181417c54684d13400b
+  
+  ```json
+  {
+    "result": true,
+    "transaction": {
+        "blockHash": "0x46075438e9bc3d14ab3058b803083ae48a15c6344068587ce9c95306625532f2",
+        "blockNumber": 14482406,
+        "from": "0x3ffAf5Be4ADa54b0093418418711153e3201226a",
+        "gas": 57257,
+        "gasPrice": "0",
+        "hash": "0x939c189de9e02b2de7242577f1f48ebf7a5f5198c61b6181417c54684d13400b",
+        "input": "0x08acdcc500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000013d300000000000000000000000000000000000000000000000000000000000027a60000000000000000000000000000000000000000000000000000000000003b79",
+        "nonce": 10,
+        "to": "0x96ad2b94e8C032E500663b8014A0BB7450F1263e",
+        "transactionIndex": 0,
+        "value": "0",
+        "type": "0x0",
+        "v": "0x1a886",
+        "r": "0x2305d412c15b0b46b3665b8110a8d9c3d81e76bdb0deff8d8e7e01643e49de28",
+        "s": "0x46f48c0f0ad6058fc4948ea9393eb472d57c4c3bf57ac17e6da5daf1d1f1b794"
+    },
+    "message": "transaction '0x939c189de9e02b2de7242577f1f48ebf7a5f5198c61b6181417c54684d13400b' has been queried"
+}
+  
+- Tx Hash: 0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
+```json
+{
+    "result": true,
+    "transaction": {
+        "blockHash": "0xfd874de2b4a092a69b440ac7e461015d4c6c68ee86bc2da6bef0216c6a33a2e1",
+        "blockNumber": 14482378,
+        "from": "0x3ffAf5Be4ADa54b0093418418711153e3201226a",
+        "gas": 57413,
+        "gasPrice": "0",
+        "hash": "0x6459dd409a78385a4d39117b029a88a771fb7045faf11705ae7ce4fb2e85aa8c",
+        "input": "0x08acdcc5000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000466e059c8b1b80000000000000000000000000000000000000000000000000008cdc0b3916370000000000000000000000000000000000000000000000000000d34a10d5a1528000",
+        "nonce": 8,
+        "to": "0x96ad2b94e8C032E500663b8014A0BB7450F1263e",
+        "transactionIndex": 0,
+        "value": "0",
+        "type": "0x0",
+        "v": "0x1a885",
+        "r": "0x2b8bbef5e4cb32c6c2458ea4b42b0a0159b16063cbf5fcbfa39df1b20e0ef5c5",
+        "s": "0x469f277e78e6e51ddb27f6a8e841797bf315c2548b923770e08ea3dd86e25330"
+    },
+    "message": "transaction '0x6459dd409a78385a4d39117b029a88a771fb7045faf11705ae7ce4fb2e85aa8c' has been queried"
+}
