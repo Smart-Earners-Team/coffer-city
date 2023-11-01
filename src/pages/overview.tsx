@@ -70,7 +70,7 @@ const OverView = () => {
         };
 
         fetchData();
-    }, [address, userDetails]); // An empty dependencies array ensures this runs once after initial render.
+    }, [address, userDetails, cID]); // An empty dependencies array ensures this runs once after initial render.
 
     useEffect(() => {
         const fetchProgress = async () => {

@@ -25,3 +25,29 @@ export const tToro: Chain = {
         },
     },
 } as const satisfies Chain
+
+export const KavaEVM: Chain = {
+    id: 2222,
+    name: 'Kava EVM',
+    network: 'kava',
+    iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/200x200/4846.png',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'Kava',
+        symbol: 'KAVA',
+    },
+    rpcUrls: {
+        public: { http: ['https://evm.kava.io/'] },
+        default: { http: ['https://evm.kava.io/'] },
+    },
+    blockExplorers: {
+        etherscan: { name: 'Kava Explorer', url: 'https://explorer.kava.io/' },
+        default: { name: 'Kava Explorer', url: 'https://explorer.kava.io/' },
+    },
+    contracts: {
+        multicall3: {
+            address: '0x6A9a1D41269e979733b8D7C66d3600CEB02Efd01',
+            blockCreated: 7147633,
+        },
+    },
+} as const satisfies Chain

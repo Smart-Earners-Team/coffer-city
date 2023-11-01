@@ -5,13 +5,13 @@ import './index.css'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { AppContextProvider } from "./components/wrap";
-import { bscTestnet, bsc } from 'wagmi/chains'
+import { bscTestnet, bsc,  } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public';
 import '@rainbow-me/rainbowkit/styles.css';
-import { tToro } from './utils/customChains/chains.ts';
+import { tToro, KavaEVM } from './utils/customChains/chains.ts';
 
 const { chains, publicClient } = configureChains(
-  [bscTestnet, tToro, bsc],
+  [bscTestnet, tToro, KavaEVM, bsc],
   [
     publicProvider()
   ]

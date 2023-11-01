@@ -192,7 +192,7 @@ const Referral = () => {
         }
         fetchReferral();
         // console.log(myRewards);
-    }, [address, data, fromBlock])
+    }, [address, cID, data, fromBlock])
 
     useEffect(() => {
         const fetchData = async () => {
