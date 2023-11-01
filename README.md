@@ -3,6 +3,9 @@
  **Coffer City**, *the digital Piggy Bank that helps you Save on your terms*!
 ### Status:
 Live on Toronet Testnet at https://coffer-city.vercel.app/ (product demo link)
+
+X(formerly Twitter) announcement tweet: https://x.com/CofferCity/status/1719722532503179688?s=20
+
 ![View Demo](https://github.com/Smart-Earners-Team/coffer-city/assets/85406816/08a18b49-3978-4f17-ba4a-992c66814a03)
 
 Contract addresses below:
@@ -26,10 +29,41 @@ This smart contract is responsible for keeping track of referrals which can be a
 
 This smart contract manages the metada for both NFT collections above 100% on-chain.
 
+### Transactions
+- https://testnet.toronet.org/address.html?f=0&q=0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
+  
+  ```
+  {
+    "result": true,
+    "transaction": {
+        "blockHash": "0x98b3fb0b032ddfaef7124e5c0c57780c888e4cff2708776ec803485eb5e8114c",
+        "blockNumber": 14482228,
+        "from": "0x9B71B4Dc9E9DCeFAF0e291Cf2DC5135A862A463d",
+        "gas": 411020,
+        "gasPrice": "0",
+        "hash": "0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c",
+        "input": "0x35b2d84b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001baf800000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "nonce": 9,
+        "to": "0x96ad2b94e8C032E500663b8014A0BB7450F1263e",
+        "transactionIndex": 0,
+        "value": "0",
+        "type": "0x0",
+        "v": "0x1a885",
+        "r": "0xf273ecc29b83466fc7dea867f133737532b74db0e294b8bfd38f1f732d73a3c5",
+        "s": "0x59d78fab9e383523d96c7d9989cd1174d9329ba66a634c5c50ad725484ff74e7"
+    },
+    "message": "transaction '0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c' has been queried"
+}```
+
+- https://testnet.toronet.org/address.html?f=0&q=0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
+- https://testnet.toronet.org/address.html?f=0&q=0xe5e73414daf83b2a0f20a3212a17fd3c1faab9d845fd5e03ab0c3f9a4dbae05c
+
 ### Introduction:
 Coffer City is a web3 solution designed to tackle financial insecurities and improve economic resilience within communities in Nigeria. By leveraging blockchain technology, Coffer City provides a transparent and secure platform for individuals to engage in weekly savings/contributions towards the accumulation of selected assets over a specified duration. This initiative not only promotes financial discipline but also drives economic empowerment and financial inclusion, especially among low-income earners and informal sector operators.   
 
 Our mission is to demystify and democratize savings in the cryptocurrency domain. We are reinventing the way users interact with their digital assets by introducing an uncomplicated savings mechanism, enabling users to manage their savings seamlessly without compromising on security or transparency. We have created an easy-to-use, secure, and automated savings solution that uses smart contracts to create customizable saving plans on the Toronet blockchain. Users are rewarded with NFT's on Toronet for referring others to Coffer City, a "**Piggy Bank**" NFT for direct referrals and a "**Coffer Chest**" animated NFT for second level referrals.
+
+This is an original work by our team. 
 
 ### A case study of "Ajo" in Nigeria:
  **Ajo** is a traditional group savings scheme prevalent in Nigeria, providing a communal framework for financial security and empowerment. It serves as a traditional, trust-based informal group savings program, where members regularly contribute fixed sums to a common fund. This method predates the advent of banks and modern financial apps in Nigeria, offering a communal way to save money and achieve financial goals.
