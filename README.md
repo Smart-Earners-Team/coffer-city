@@ -9,9 +9,11 @@ Contract addresses below:
 1. Coffer Vault: https://testnet.toronet.org/address.html?address=0x96ad2b94e8C032E500663b8014A0BB7450F1263e
 
 This smart contract is responsible for managing user registrations, weekly contributions, asset selection, and distribution of pooled funds based on predefined schedules. It also manages the issuance of NFTs for referrals and other community engagement activities.
+
 2. Coffer Registry: https://testnet.toronet.org/address.html?address=0x4a50FE761311c03222505bB16Acf6a75111B49dd
 
 This smart contract is responsible for keeping track of referrals which can be accessesed by any additional products we will be building under Coffer City
+
 3. PiggyBank NFT: https://testnet.toronet.org/address.html?address=0x98485E4927cbe4e4B6A03f36C329d52B3057D111
 
    Demo: https://coffer.city/demo/piggybank.svg
@@ -21,7 +23,8 @@ This smart contract is responsible for keeping track of referrals which can be a
    Demo: https://coffer.city/demo/coffer-chest.svg
    
 5. Coffer Metadata: https://testnet.toronet.org/address.html?address=0x663B2914a21d0a37aCA5E59c5904754C3f157aC3
-   This smart contract manages the metada for both NFT collections above 100% on-chain.
+
+This smart contract manages the metada for both NFT collections above 100% on-chain.
    
 
 ### Concept:
