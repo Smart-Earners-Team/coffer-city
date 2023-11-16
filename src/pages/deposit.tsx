@@ -27,7 +27,7 @@ const getAddressArray = async (rpcUrl: string, contractAddress: string) => {
 
   let addrArray: string[];
 
-  addrArray = (await contract?.getSupportedTokens());
+  addrArray = await contract?.getSupportedTokens();
   // console.log(addrArray);
 
   return addrArray;
@@ -220,7 +220,7 @@ const Deposits = () => {
       // console.log(tRes);
 
       const dRes: bigint[] = res.durationTiers;
-      // console.log(dRes);
+      //console.log(dRes);
 
       // Convert each item in the array to a parseFloat value
       const tokenTiers = tRes.map((item) =>

@@ -20,7 +20,7 @@ export const getAmountForAssets = async (
     contractABI: ERC20ABI,
   });
 
-  console.log(assetContract);
+  //console.log(assetContract);
 
   const amountTiersByToken: bigint[] = await contract?.getAmountTiersByToken(
     address
@@ -39,7 +39,7 @@ export const getAmountForAssets = async (
   }
 
   const durationTiers: bigint[] = await contract?.getDurations();
-  // console.log(durationTiers);
+  //console.log(durationTiers);
 
   const result = { amountTiersByToken, assetDecimals, durationTiers };
 
